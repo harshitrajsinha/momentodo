@@ -1,6 +1,6 @@
 <template>
-  <div class="todo-container">
-    <div class="todo-container__elem todo-container__create-task">
+  <div class="task-container">
+    <div class="task-container__elem task-container__create-task">
       <input class="create-task__is-completed" type="checkbox" />
       <input
         class="create-task__text-input"
@@ -10,19 +10,16 @@
         placeholder="Create new task"
       />
     </div>
-    <select class="todo-container__elem">
+    <select class="task-container__elem">
       <option value="" disabled selected>Add priority</option>
       <option value="urgent">Urgent</option>
       <option value="medium">Medium</option>
       <option value="low">Low</option>
     </select>
     <textarea
-      class="todo-container__elem todo-container__add-notes"
+      class="task-container__elem task-container__add-notes"
       placeholder="Add notes"
     ></textarea>
-    <button class="todo-container__elem todo-container__add-task-btn">
-      Create new task
-    </button>
   </div>
 </template>
 
@@ -46,16 +43,13 @@ const addNewTask = (event) => {
 </script>
 
 <style scoped>
-.todo-container {
-  width: 25vw;
-  max-width: 25vw;
-  margin: 0 auto;
+.task-container {
   padding: 1rem;
   background-color: white;
   border-radius: 0.5rem;
 }
 
-.todo-container__elem {
+.task-container__elem {
   border-radius: 0.5rem;
   background-color: #efecec;
   width: -webkit-fill-available;
@@ -64,7 +58,7 @@ const addNewTask = (event) => {
   margin-bottom: 0.5rem;
 }
 
-.todo-container__create-task {
+.task-container__create-task {
   display: flex;
   gap: 0.5rem;
   border: none;
@@ -81,15 +75,8 @@ const addNewTask = (event) => {
   outline: none;
 }
 
-.todo-container__add-notes {
+.task-container__add-notes {
   resize: none;
   min-height: 8rem;
-}
-
-.todo-container__add-task-btn {
-  border-radius: 1.5rem;
-  color: white;
-  background-color: black;
-  cursor: pointer;
 }
 </style>
