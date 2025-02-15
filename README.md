@@ -1,3 +1,3 @@
 # Todo
 
-## A non-persistive todo application
+## A non-persistent todo application
