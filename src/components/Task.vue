@@ -1,43 +1,107 @@
 <template>
   <div class="task-container">
     <div class="task-container__elem task-container__create-task">
-      <input class="create-task__is-completed" type="checkbox" />
+      <input
+        v-model="taskCompleted"
+        id="task-checkbox"
+        class="create-task__is-completed"
+        type="checkbox"
+        @change="addNewTask"
+      />
       <input
         class="create-task__text-input"
-        v-model="resetValue"
+        id="task-input"
+        type="'text'"
+        v-model="taskTitle"
         ref="focusOnInput"
-        @blur="addNewTask"
         placeholder="Create new task"
+        @input="addNewTask"
       />
     </div>
-    <select class="task-container__elem">
+    <select
+      v-model="taskPriority"
+      class="task-container__elem"
+      id="task-priority"
+      @change="addNewTask"
+    >
       <option value="" disabled selected>Add priority</option>
       <option value="urgent">Urgent</option>
       <option value="medium">Medium</option>
       <option value="low">Low</option>
     </select>
     <textarea
+      v-model="taskNotes"
       class="task-container__elem task-container__add-notes"
+      id="task-notes"
       placeholder="Add notes"
+      @blur="addNewTask"
     ></textarea>
   </div>
 </template>
 
 <script setup>
-import { defineProps, ref, onMounted } from "vue";
+import { defineProps, ref, onMounted, defineExpose } from "vue";
+const props = defineProps(["toReset"]);
+const resetVal = ref(props.toReset);
+const initalTaskCompleted = false;
+const initalTaskTitle = "";
+const initalTaskPriority = "";
+const initalTaskNotes = "";
+
+let taskList = defineModel("tasklist");
+let newList = [...taskList.value];
 const focusOnInput = ref(null);
-const resetValue = ref("");
-let model = defineModel();
+let taskCompleted = ref(initalTaskCompleted);
+let taskTitle = ref(initalTaskTitle);
+let taskPriority = ref(initalTaskPriority);
+let taskNotes = ref(initalTaskNotes);
+let newTaskObj = ref({
+  "is-completed": taskCompleted.value,
+  title: taskTitle.value,
+  "task-priority": taskPriority.value,
+  notes: taskNotes.value,
+});
+
+// Function to reset field values of create task container
+const resetTaskFields = () => {
+  taskCompleted.value = initalTaskCompleted;
+  taskTitle.value = initalTaskTitle;
+  taskPriority.value = initalTaskPriority;
+  taskNotes.value = initalTaskNotes;
+};
+
+defineExpose({ resetTaskFields });
+
 onMounted(() => {
   if (focusOnInput.value) {
     focusOnInput.value.focus();
   }
 });
-
 const addNewTask = (event) => {
-  if (event.target.value !== "") {
-    model.value.push(event.target.value);
-    resetValue.value = "";
+  if (event.target.id === "task-checkbox") {
+    newTaskObj.value["is-completed"] = taskCompleted.value;
+  } else if (event.target.id === "task-notes" && taskNotes.value !== "") {
+    newTaskObj.value["notes"] = taskNotes.value;
+  } else if (event.target.id === "task-priority") {
+    newTaskObj.value["task-priority"] = taskPriority.value;
+  } else if (event.target.id === "task-input" && taskTitle.value !== "") {
+    newTaskObj.value["title"] = taskTitle.value;
+  }
+
+  /*
+    Current flow - on typing first char, if() executes and then as title is typed further, else() executes
+  */
+
+  if (newTaskObj.value["title"] !== "") {
+    const lastTaskTitle = newList[newList.length - 1]["title"];
+    if (lastTaskTitle.trim() !== newTaskObj.value["title"].trim()) {
+      // If new task's title is different from task in list
+      newList.push(newTaskObj.value);
+    } else {
+      newList.pop();
+      newList.push(newTaskObj.value);
+    }
+    taskList.value = [...newList];
   }
 };
 </script>

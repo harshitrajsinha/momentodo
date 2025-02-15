@@ -7,6 +7,11 @@ import Todo from "./components/Todo.vue";
 </template>
 
 <style>
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 body {
   background-color: #efecec;
 }
