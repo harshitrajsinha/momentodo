@@ -1,6 +1,10 @@
 <template>
   <div class="create-todo-container">
-    <Task :class="['add-todo', { active: toShow }]" />
+    <Task
+      v-model:tasklist="taskListModel"
+      :class="['add-todo', { active: toShow }]"
+      ref="taskCompInstance"
+    />
     <button class="create-todo-container__create-btn" @click="showAddTodo">
       <font-awesome-icon
         :style="{
@@ -16,12 +20,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, defineModel } from "vue";
+import Task from "./Task.vue";
+
+const taskCompInstance = ref(null);
 let toShow = ref(false);
 let rotation = ref(90);
-import Task from "./Task.vue";
+let taskListModel = defineModel();
 const showAddTodo = () => {
+  if (taskCompInstance.value) {
+    taskCompInstance.value.resetTaskFields();
+  }
   toShow.value = !toShow.value;
+  console.log(toShow.value);
   rotation.value = 90 - rotation.value;
 };
 </script>
@@ -54,7 +65,7 @@ const showAddTodo = () => {
 .add-todo {
   position: relative;
   bottom: -100vh;
-  transition: bottom 2s;
+  transition: bottom 1.5s;
 }
 
 .add-todo.active {
