@@ -4,10 +4,10 @@
       <li
         v-for="(taskList, index) in taskLists"
         :key="index"
-        class="task-list"
+        class="task-lists"
         @click="sendIndex(index)"
       >
-        <input class="task-list__is-completed" type="checkbox" />
+        <input class="task-lists__is-completed" type="checkbox" />
         <span>{{ taskList.title }}</span>
       </li>
     </ul>
@@ -26,26 +26,35 @@ const sendIndex = (index) => {
 
 <style scroped>
 .container {
-  /* width: 90%;
-  max-width: 80%; */
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 6rem;
 }
-.task-list__title {
-  border: 2px solid blue;
+
+li span {
+  width: 100%;
+  overflow-x: scroll;
 }
-.task-list {
+
+li span::-webkit-scrollbar {
+  height: auto;
+  background-color: white;
+}
+
+.task-lists {
   background-color: white;
   padding: 0.8rem;
+  padding-bottom: 0;
   margin-bottom: 0.5rem;
   border-radius: 0.5rem;
   display: flex;
   gap: 1rem;
+  align-items: baseline;
   font-size: 1.2rem;
   cursor: pointer;
+  font-weight: 600;
 }
 
-.task-list__is-completed {
+.task-lists__is-completed {
   transform: scale(1.5);
 }
 </style>

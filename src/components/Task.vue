@@ -107,6 +107,11 @@ const addNewTask = (event) => {
 </script>
 
 <style scoped>
+input,
+select,
+textarea {
+  font-family: monospace;
+}
 .task-container {
   padding: 1rem;
   background-color: white;

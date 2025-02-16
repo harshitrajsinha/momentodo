@@ -11,6 +11,7 @@ import Todo from "./components/Todo.vue";
   margin: 0;
   padding: 0;
   list-style: none;
+  font-family: sans-serif;
 }
 body {
   background-color: #efecec;

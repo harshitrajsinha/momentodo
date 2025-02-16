@@ -1,6 +1,36 @@
 <template>
   <div class="task-details-container">
-    <!-- <div class="task-completed"></div> -->
+    <div class="task-tags task-container__elem">
+      <div
+        class="task-tags__priority"
+        :style="{
+          backgroundColor:
+            currentPriority === 'urgent'
+              ? '#fe3c3c'
+              : currentPriority === 'medium'
+              ? 'orange'
+              : '#f3f33a',
+        }"
+      >
+        <span class="circle-decor">&#9679;</span>
+        {{
+          currentPriority === "urgent"
+            ? "Urgent"
+            : currentPriority === "medium"
+            ? "Medium"
+            : "Low"
+        }}
+      </div>
+      <div
+        class="task-tags__completion"
+        :style="{
+          backgroundColor: currentCompletionStatus ? '#6fe19a' : '#9e9e9e',
+        }"
+      >
+        <span class="circle-decor">&#9679;</span>
+        {{ currentCompletionStatus ? "Completed" : "Not completed" }}
+      </div>
+    </div>
     <font-awesome-icon
       class="task-details__right-caret"
       :icon="['fas', 'square-caret-right']"
@@ -44,12 +74,14 @@ import { ref, defineEmits } from "vue";
 let currentTitle = ref("");
 let currentPriority = ref("");
 let currentNotes = ref("");
+let currentCompletionStatus = ref(false);
 let initalTaskData = ref({});
 const getCurrentListData = (data) => {
   initalTaskData.value = data;
   currentTitle.value = data["title"];
   currentPriority.value = data["task-priority"];
   currentNotes.value = data["notes"];
+  currentCompletionStatus.value = data["is-completed"];
 };
 
 const emit = defineEmits(["close-modal"]);
@@ -62,6 +94,16 @@ defineExpose({ getCurrentListData });
 </script>
 
 <style scoped>
+label {
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  font-family: monospace;
+}
+
 .task-details-container {
   position: relative;
   background-color: white;
@@ -69,6 +111,7 @@ defineExpose({ getCurrentListData });
   margin-top: 1rem;
   margin-right: 1rem;
   border-radius: 0.5rem;
+
   /* width: 30%;
   max-width: 30%; */
 }
@@ -83,7 +126,28 @@ defineExpose({ getCurrentListData });
   margin-top: 0.5rem;
 }
 
+.task-tags {
+  display: flex;
+  justify-content: start;
+  gap: 2rem;
+  padding: 0;
+  background-color: transparent;
+}
+
+.task-tags__priority,
+.task-tags__completion {
+  padding: 0.2rem 0.8rem;
+  border-radius: 0.8rem;
+}
+
+.circle-decor {
+  color: white;
+}
+
 .task-details__notes {
+  min-height: 5rem;
+  text-align: left;
+  line-height: 1rem;
   resize: none;
 }
 
@@ -99,13 +163,12 @@ defineExpose({ getCurrentListData });
   }
 }
 
-.task-details__right-caret:hover {
+/* .task-details__right-caret:hover {
   animation: blink 2s infinite;
-}
+} */
 
 .task-details__right-caret {
   color: #575757;
-  /* font-size: 2rem; */
   transform: scale(2);
   position: absolute;
   inset: 0;

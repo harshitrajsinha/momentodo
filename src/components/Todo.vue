@@ -1,7 +1,7 @@
 <template>
   <div class="main-container">
     <Groups class="left-section" />
-    <div class="mid-section">
+    <div class="mid-section" :style="{ maxWidth: listMaxWidth }">
       <TaskList v-model="taskLists" @get-index="getListId" />
       <CreateTodo v-model="taskLists" />
     </div>
@@ -22,7 +22,7 @@ import Groups from "./Groups.vue";
 let taskDetails = ref(null);
 let currentList = ref({});
 let toShow = ref(false);
-
+let listMaxWidth = ref("80%");
 const taskLists = ref([
   {
     "is-completed": true,
@@ -50,12 +50,14 @@ const getListId = (data) => {
   if (taskDetails.value) {
     taskDetails.value.getCurrentListData(currentList);
     toShow.value = true;
+    listMaxWidth.value = "50%";
   }
 };
 
 const handleModalClose = (data) => {
   if (data === false) {
     toShow.value = false;
+    listMaxWidth.value = "80%";
   }
 };
 </script>
