@@ -7,6 +7,7 @@
     </div>
     <TaskDetails
       ref="taskDetails"
+      v-model:allTaskData="taskLists"
       :class="['right-section', { active: toShow }]"
       @close-modal="handleModalClose"
     />
@@ -48,7 +49,7 @@ const taskLists = ref([
 const getListId = (data) => {
   currentList = { ...taskLists.value[data] };
   if (taskDetails.value) {
-    taskDetails.value.getCurrentListData(currentList);
+    taskDetails.value.getCurrentListData(data);
     toShow.value = true;
     listMaxWidth.value = "50%";
   }

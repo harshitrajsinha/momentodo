@@ -49,7 +49,7 @@ li span::-webkit-scrollbar {
   display: flex;
   gap: 1rem;
   align-items: baseline;
-  font-size: 1.2rem;
+  font-size: 1rem;
   cursor: pointer;
   font-weight: 600;
 }

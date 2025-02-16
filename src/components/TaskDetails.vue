@@ -76,25 +76,46 @@
         v-model="currentNotes"
       ></textarea>
     </label>
+    <div class="task-details__set-btn">
+      <button class="save-btn" @click="saveData">Save</button>
+      <button class="reset-btn" @click="resetData">Reset</button>
+    </div>
   </div>
 </template>
 
 <script setup>
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
-import { ref, defineEmits } from "vue";
+import { ref, defineEmits, onMounted } from "vue";
 let showEmojiPicker = ref(false);
+let currentListId = ref(-1);
+
 let currentTitle = ref("");
 let currentPriority = ref("");
 let currentNotes = ref("");
 let currentCompletionStatus = ref(false);
 let initalTaskData = ref({});
+let allData = defineModel("allTaskData");
 const getCurrentListData = (data) => {
-  initalTaskData.value = data;
-  currentTitle.value = data["title"];
-  currentPriority.value = data["task-priority"];
-  currentNotes.value = data["notes"];
-  currentCompletionStatus.value = data["is-completed"];
+  currentListId.value = data;
+  initalTaskData.value = allData.value[data];
+  currentTitle.value = allData.value[data]["title"];
+  currentPriority.value = allData.value[data]["task-priority"];
+  currentNotes.value = allData.value[data]["notes"];
+  currentCompletionStatus.value = allData.value[data]["is-completed"];
+};
+
+const saveData = () => {
+  allData.value[currentListId.value]["title"] = currentTitle.value;
+  allData.value[currentListId.value]["task-priority"] = currentPriority.value;
+  allData.value[currentListId.value]["notes"] = currentNotes.value;
+};
+
+const resetData = () => {
+  currentTitle.value = initalTaskData.value["title"];
+  currentPriority.value = initalTaskData.value["task-priority"];
+  currentNotes.value = initalTaskData.value["notes"];
+  currentCompletionStatus.value = initalTaskData.value["is-completed"];
 };
 
 const onSelectEmoji = (emoji) => {
@@ -220,5 +241,24 @@ textarea {
   position: absolute;
   top: 3rem;
   right: -2rem;
+}
+
+.task-details__set-btn {
+  display: flex;
+  gap: 1rem;
+}
+
+.task-details__set-btn button {
+  font-size: 1rem;
+  position: relative;
+  margin-top: 0.5rem;
+  border-radius: 1.5rem;
+  color: white;
+  background-color: black;
+  cursor: pointer;
+  width: -webkit-fill-available;
+  border: none;
+  padding: 0.8rem;
+  z-index: 1;
 }
 </style>
