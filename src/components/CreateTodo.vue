@@ -32,7 +32,6 @@ const showAddTodo = () => {
     taskCompInstance.value.resetTaskFields();
   }
   toShow.value = !toShow.value;
-  console.log(toShow.value);
   rotation.value = 90 - rotation.value;
 };
 </script>
