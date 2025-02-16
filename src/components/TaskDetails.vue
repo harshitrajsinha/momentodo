@@ -37,16 +37,27 @@
       @click="closeModal"
     />
     <label
-      >Task Title
-      <input
-        class="task-container__elem task-details__title"
-        type="'text'"
-        placeholder="Edit title"
-        v-model="currentTitle"
-      />
+      >Title
+      <div class="task-container__elem title-container">
+        <input
+          class="task-details__title"
+          type="'text'"
+          placeholder="Edit title"
+          v-model="currentTitle"
+        />
+        <button class="create-task__emoji-btn" @click="toggleEmojiPicker">
+          😃
+        </button>
+        <EmojiPicker
+          v-if="showEmojiPicker"
+          :display-recent="true"
+          :native="false"
+          @select="onSelectEmoji"
+        />
+      </div>
     </label>
     <label
-      >Task priority
+      >Priority
       <select
         class="task-details__priority task-container__elem"
         v-model="currentPriority"
@@ -58,7 +69,7 @@
       </select>
     </label>
     <label
-      >Task notes
+      >Notes
       <textarea
         class="task-container__elem task-details__notes"
         placeholder="Edit notes"
@@ -69,8 +80,10 @@
 </template>
 
 <script setup>
+import EmojiPicker from "vue3-emoji-picker";
+import "vue3-emoji-picker/css";
 import { ref, defineEmits } from "vue";
-
+let showEmojiPicker = ref(false);
 let currentTitle = ref("");
 let currentPriority = ref("");
 let currentNotes = ref("");
@@ -82,6 +95,16 @@ const getCurrentListData = (data) => {
   currentPriority.value = data["task-priority"];
   currentNotes.value = data["notes"];
   currentCompletionStatus.value = data["is-completed"];
+};
+
+const onSelectEmoji = (emoji) => {
+  // taskTitle.value = taskTitle.value + emoji["i"];
+  // addNewTask({ target: { id: "task-input" } });
+  // showEmojiPicker.value = !showEmojiPicker.value;
+};
+
+const toggleEmojiPicker = () => {
+  showEmojiPicker.value = !showEmojiPicker.value;
 };
 
 const emit = defineEmits(["close-modal"]);
@@ -111,9 +134,6 @@ textarea {
   margin-top: 1rem;
   margin-right: 1rem;
   border-radius: 0.5rem;
-
-  /* width: 30%;
-  max-width: 30%; */
 }
 
 .task-container__elem {
@@ -142,6 +162,19 @@ textarea {
 
 .circle-decor {
   color: white;
+}
+
+.title-container {
+  display: flex;
+  position: relative;
+}
+
+.task-details__title {
+  border-radius: 0.5rem;
+  background-color: #efecec;
+  width: -webkit-fill-available;
+  border: none;
+  outline: none;
 }
 
 .task-details__notes {
@@ -175,5 +208,17 @@ textarea {
   left: -2%;
   top: 8%;
   cursor: pointer;
+}
+
+.create-task__emoji-btn {
+  border: none;
+  transform: scale(1.5);
+  cursor: pointer;
+}
+
+.v3-emoji-picker {
+  position: absolute;
+  top: 3rem;
+  right: -2rem;
 }
 </style>

@@ -17,6 +17,15 @@
         placeholder="Create new task"
         @input="addNewTask"
       />
+      <button class="create-task__emoji-btn" @click="toggleEmojiPicker">
+        😃
+      </button>
+      <EmojiPicker
+        v-if="showEmojiPicker"
+        :display-recent="true"
+        :native="false"
+        @select="onSelectEmoji"
+      />
     </div>
     <select
       v-model="taskPriority"
@@ -40,6 +49,8 @@
 </template>
 
 <script setup>
+import EmojiPicker from "vue3-emoji-picker";
+import "vue3-emoji-picker/css";
 import { defineProps, ref, onMounted, defineExpose } from "vue";
 const props = defineProps(["toReset"]);
 const resetVal = ref(props.toReset);
@@ -47,7 +58,7 @@ const initalTaskCompleted = false;
 const initalTaskTitle = "";
 const initalTaskPriority = "";
 const initalTaskNotes = "";
-
+let showEmojiPicker = ref(false);
 let taskList = defineModel("tasklist");
 let newList = [...taskList.value];
 const focusOnInput = ref(null);
@@ -61,6 +72,16 @@ let newTaskObj = ref({
   "task-priority": taskPriority.value,
   notes: taskNotes.value,
 });
+
+const onSelectEmoji = (emoji) => {
+  taskTitle.value = taskTitle.value + emoji["i"];
+  addNewTask({ target: { id: "task-input" } });
+  showEmojiPicker.value = !showEmojiPicker.value;
+};
+
+const toggleEmojiPicker = () => {
+  showEmojiPicker.value = !showEmojiPicker.value;
+};
 
 // Function to reset field values of create task container
 const resetTaskFields = () => {
@@ -147,5 +168,17 @@ textarea {
 .task-container__add-notes {
   resize: none;
   min-height: 8rem;
+}
+
+.create-task__emoji-btn {
+  border: none;
+  transform: scale(1.5);
+  cursor: pointer;
+}
+
+.v3-emoji-picker {
+  position: absolute;
+  right: -17rem;
+  top: 1rem;
 }
 </style>
