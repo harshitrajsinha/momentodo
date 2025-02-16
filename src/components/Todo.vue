@@ -2,7 +2,7 @@
   <div class="main-container">
     <Groups class="left-section" />
     <div class="mid-section" :style="{ maxWidth: listMaxWidth }">
-      <TaskList v-model="taskLists" @get-index="getListId" />
+      <TaskList v-model:tasklists="taskLists" @get-index="getListId" />
       <CreateTodo v-model="taskLists" />
     </div>
     <TaskDetails
@@ -26,7 +26,7 @@ let toShow = ref(false);
 let listMaxWidth = ref("80%");
 const taskLists = ref([
   {
-    "is-completed": true,
+    "is-completed": false,
     title: "Add Sugar",
     "task-priority": "medium",
     notes: "testing",

@@ -6,8 +6,26 @@
         :key="index"
         class="task-lists"
         @click="sendIndex(index)"
+        :style="{
+          border: taskList['is-completed']
+            ? '1px solid green'
+            : taskList['task-priority'] === ''
+            ? '1px solid blue'
+            : taskList['task-priority'] === 'urgent'
+            ? '1px solid #fe3c3c'
+            : taskList['task-priority'] === 'medium'
+            ? '1px solid orange'
+            : '1px solid #f3f33a',
+          textDecoration: taskList['is-completed'] ? 'line-through' : '',
+        }"
       >
-        <input class="task-lists__is-completed" type="checkbox" />
+        <input
+          ref="completionInput"
+          class="task-lists__is-completed"
+          type="checkbox"
+          :checked="taskList['is-completed']"
+          @click="toggleCheckbox(index)"
+        />
         <span>{{ taskList.title }}</span>
       </li>
     </ul>
@@ -15,8 +33,16 @@
 </template>
 
 <script setup>
-import { defineEmits } from "vue";
-let taskLists = defineModel();
+import { defineEmits, ref } from "vue";
+let completionInput = ref(null);
+let taskLists = defineModel("tasklists");
+
+const toggleCheckbox = (id) => {
+  const isCompleted = taskLists.value[id]["is-completed"];
+  if (completionInput.value) {
+    taskLists.value[id]["is-completed"] = !isCompleted;
+  }
+};
 const emit = defineEmits(["get-index"]);
 
 const sendIndex = (index) => {
@@ -31,7 +57,6 @@ const sendIndex = (index) => {
 }
 
 li span {
-  width: 100%;
   overflow-x: scroll;
 }
 
