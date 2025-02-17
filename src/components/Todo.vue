@@ -1,13 +1,29 @@
 <template>
   <div class="main-container">
-    <Groups class="left-section" />
+    <TodoList v-model:todo-list-data="groupList" class="left-section" />
     <div class="mid-section" :style="{ maxWidth: listMaxWidth }">
-      <TaskList v-model:tasklists="taskLists" @get-index="getListId" />
-      <CreateTodo v-model="taskLists" />
+      <DisplayList
+        ref="displayList"
+        v-model:list-model="taskLists.value"
+        listStyles="task-list-style"
+        listContainerStyle="list-container-style"
+        @getListId="getListId"
+      >
+        <template #list-checkbox="{ completionStatus, indexVal }">
+          <input
+            class="task-lists__is-completed"
+            type="checkbox"
+            :checked="completionStatus"
+            @click="toggleCheckbox(indexVal)"
+          />
+        </template>
+      </DisplayList>
+
+      <CreateTodo v-model="taskLists.value" />
     </div>
     <TaskDetails
       ref="taskDetails"
-      v-model:allTaskData="taskLists"
+      v-model:allTaskData="taskLists.value"
       :class="['right-section', { active: toShow }]"
       @close-modal="handleModalClose"
     />
@@ -15,36 +31,47 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, onUpdated, computed } from "vue";
 import CreateTodo from "./CreateTodo.vue";
+import DisplayList from "./DisplayList.vue";
 import TaskList from "./TaskList.vue";
 import TaskDetails from "./TaskDetails.vue";
-import Groups from "./Groups.vue";
+import TodoList from "./TodoList.vue";
 let taskDetails = ref(null);
+let displayList = ref(null);
 let currentList = ref({});
+let taskLists = ref([]);
 let toShow = ref(false);
 let listMaxWidth = ref("80%");
-const taskLists = ref([
+let groupList = ref([
   {
-    "is-completed": false,
-    title: "Add Sugar",
-    "task-priority": "medium",
-    notes: "testing",
+    icon: "😁",
+    title: "Home",
+    "task-list": {
+      "is-completed": true,
+      title: "Add Sugar",
+      "task-priority": "medium",
+      notes: "testing",
+    },
   },
   {
-    "is-completed": false,
-    title: "Add Veggies",
-    "task-priority": "urgent",
-    notes:
-      "testing testing testing testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testing",
-  },
-  {
-    "is-completed": true,
-    title: "Add spices",
-    "task-priority": "low",
-    notes: "testing",
+    icon: "😎",
+    title: "Tech",
+    "task-list": {
+      "is-completed": false,
+      title: "Add Veggies",
+      "task-priority": "urgent",
+      notes:
+        "testing testing testing testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testing",
+    },
   },
 ]);
+
+taskLists.value = computed(() =>
+  groupList.value.map((elem) => {
+    return elem["task-list"];
+  })
+);
 
 // functionality to save data before page reloads or tab closes
 {
@@ -65,12 +92,17 @@ const taskLists = ref([
 }
 
 const getListId = (data) => {
-  currentList = { ...taskLists.value[data] };
   if (taskDetails.value) {
     taskDetails.value.getCurrentListData(data);
     toShow.value = true;
     listMaxWidth.value = "50%";
   }
+};
+
+const toggleCheckbox = (id) => {
+  const isCompleted = groupList.value[id]["task-list"]["is-completed"];
+  groupList.value[id]["task-list"]["is-completed"] = !isCompleted;
+  console.log(groupList.value);
 };
 
 const handleModalClose = (data) => {
@@ -81,7 +113,27 @@ const handleModalClose = (data) => {
 };
 </script>
 
-<style>
+<style scoped>
+::v-deep(div.list-container-style) {
+  margin: 0 auto;
+  padding: 2rem 6rem;
+}
+::v-deep(li.task-list-style) {
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  gap: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.task-lists__is-completed {
+  transform: scale(1.5);
+}
+
+::v-deep(li.task-list-style input[type="checkbox"]:checked) ~ * {
+  text-decoration: line-through;
+}
+
 .main-container {
   overflow: hidden;
   display: flex;
