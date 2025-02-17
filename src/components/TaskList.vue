@@ -26,7 +26,7 @@
           :checked="taskList['is-completed']"
           @click="toggleCheckbox(index)"
         />
-        <span>{{ taskList.title }}</span>
+        <span class="task-title-txt">{{ taskList.title }}</span>
       </li>
     </ul>
   </div>
@@ -56,7 +56,7 @@ const sendIndex = (index) => {
   padding: 2rem 6rem;
 }
 
-li span {
+li span.task-title-txt {
   overflow-x: scroll;
 }
 
