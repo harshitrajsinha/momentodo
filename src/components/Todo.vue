@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import CreateTodo from "./CreateTodo.vue";
 import TaskList from "./TaskList.vue";
 import TaskDetails from "./TaskDetails.vue";
@@ -46,6 +46,24 @@ const taskLists = ref([
   },
 ]);
 
+// functionality to save data before page reloads or tab closes
+{
+  const handleBeforeUnload = (event) => {
+    // event.preventDefault(); // Some browsers require this
+    // event.returnValue = "";
+    localStorage.setItem("harshit", "harshit");
+    console.log("Page is about to refresh or close!");
+  };
+
+  onMounted(() => {
+    window.addEventListener("beforeunload", handleBeforeUnload);
+  });
+
+  onBeforeUnmount(() => {
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+  });
+}
+
 const getListId = (data) => {
   currentList = { ...taskLists.value[data] };
   if (taskDetails.value) {
@@ -71,7 +89,8 @@ const handleModalClose = (data) => {
 }
 
 .left-section {
-  width: 20%;
+  width: 23%;
+  height: calc(100vh - 2rem);
 }
 
 .mid-section {
@@ -81,14 +100,14 @@ const handleModalClose = (data) => {
 .right-section {
   width: 0%;
   position: relative;
-  right: -100vw;
+  right: -50vw;
   transition: right 1.5s;
 }
 
 .right-section.active {
   position: relative;
   right: 0;
-  width: 20%;
+  width: 25%;
   margin-top: 1rem;
   margin-right: 1rem;
   border-radius: 0.5rem;
