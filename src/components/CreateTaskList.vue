@@ -1,7 +1,8 @@
 <template>
   <div class="create-todo-container">
     <Task
-      v-model:tasklist="taskListModel"
+      v-model:task-list="taskListModel"
+      v-model:last-list-item="taskListModel[taskListModel.length - 1]"
       :class="['add-todo', { active: toShow }]"
       ref="taskCreateInstance"
     />
@@ -18,13 +19,13 @@ import { ref, defineModel } from "vue";
 import Task from "./Task.vue";
 import CreateListBtn from "./CreateListBtn.vue";
 
-const taskCompInstance = ref(null);
+const taskCreateInstance = ref(null);
 let toShow = ref(false);
-let taskListModel = defineModel();
+let taskListModel = defineModel("task-list-model");
 const showCreateTaskModal = () => {
-  // if (taskCompInstance.value) {
-  //   taskCompInstance.value.resetTaskFields();
-  // }
+  if (taskCreateInstance.value) {
+    taskCreateInstance.value.resetTaskFields();
+  }
   toShow.value = !toShow.value;
 };
 </script>

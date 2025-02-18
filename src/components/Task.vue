@@ -59,8 +59,9 @@ const initalTaskTitle = "";
 const initalTaskPriority = "";
 const initalTaskNotes = "";
 let showEmojiPicker = ref(false);
-let taskList = defineModel("tasklist");
-let newList = [...taskList.value];
+let taskList = defineModel("task-list");
+let lastListItem = defineModel("last-list-item");
+
 const focusOnInput = ref(null);
 let taskCompleted = ref(initalTaskCompleted);
 let taskTitle = ref(initalTaskTitle);
@@ -89,6 +90,12 @@ const resetTaskFields = () => {
   taskTitle.value = initalTaskTitle;
   taskPriority.value = initalTaskPriority;
   taskNotes.value = initalTaskNotes;
+  newTaskObj.value = {
+    "is-completed": taskCompleted.value,
+    title: taskTitle.value,
+    "task-priority": taskPriority.value,
+    notes: taskNotes.value,
+  };
 };
 
 defineExpose({ resetTaskFields });
@@ -109,20 +116,18 @@ const addNewTask = (event) => {
     newTaskObj.value["title"] = taskTitle.value;
   }
 
-  /*
-    Current flow - on typing first char, if() executes and then as title is typed further, else() executes
-  */
-
   if (newTaskObj.value["title"] !== "") {
-    const lastTaskTitle = newList[newList.length - 1]["title"];
-    if (lastTaskTitle.trim() !== newTaskObj.value["title"].trim()) {
-      // If new task's title is different from task in list
-      newList.push(newTaskObj.value);
-    } else {
-      newList.pop();
-      newList.push(newTaskObj.value);
+    if (newTaskObj.value["title"]) {
+      if (newTaskObj.value["title"].length === 1) {
+        console.log(taskList.value, "raj", newTaskObj.value);
+
+        taskList.value.push(newTaskObj.value);
+        console.log(taskList.value, "rajj", newTaskObj.value);
+      } else if (newTaskObj.value["title"].length > 1) {
+        lastListItem.value = newTaskObj.value;
+        console.log(lastListItem.value, "harhist", newTaskObj.value);
+      }
     }
-    taskList.value = [...newList];
   }
 };
 </script>

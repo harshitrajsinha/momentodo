@@ -3,11 +3,14 @@
     <div class="todo-list__heading">Lists</div>
     <!-- Pass a default icon in case icon is not present -->
     <DisplayItemList
-      v-model:list-model="listItems.value"
+      v-model:list-model="todoListData.value"
       listStyles="todo-list-style"
       @getListId="handleListId"
       ><template #list-icon="{ icon }">
         <span class="todo-list-icon">{{ icon }}</span>
+      </template>
+      <template #list-count="{ count }">
+        <div class="todo-lists__list-count">{{ count }}</div>
       </template>
     </DisplayItemList>
     <div :class="['todo-list__input', { active: toShowTodoInput }]">
@@ -22,6 +25,7 @@
         type="text"
         maxlength="25"
         v-model="newTodo['title']"
+        @input="writeNewTodo"
         @blur="getNewTodo"
       />
     </div>
@@ -38,22 +42,20 @@ import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
 import DisplayItemList from "./DisplayItemList.vue";
 import CreateListBtn from "./CreateListBtn.vue";
-import { ref, computed } from "vue";
+import { ref } from "vue";
 
 const defaultButtonTxt = "😁";
 let buttonTxt = ref(defaultButtonTxt);
-let newTodo = ref({ icon: buttonTxt.value, title: "" });
+let timerId = ref(null);
+let newTitle = ref(true);
+const defaultTodoObj = { icon: buttonTxt.value, title: "", "task-list": [] };
+let newTodo = ref(defaultTodoObj);
 let showTodoEmojiPicker = ref(false);
-let todoListData = defineModel("todo-list-data");
-let listItems = ref([]);
+let todoListData = defineModel("todo-list-display");
+let todoData = defineModel("todo-data");
+let lastItem = defineModel("last-todo-item");
 let toShowTodoInput = ref(false);
 let emit = defineEmits(["todoItem"]);
-
-listItems.value = computed(() =>
-  todoListData.value.map((elem) => {
-    return { title: elem["title"], icon: elem["icon"] };
-  })
-);
 
 const handleListId = (id) => {
   emit("todoItem", id);
@@ -61,19 +63,60 @@ const handleListId = (id) => {
 
 const toggleTodoListInput = () => {
   toShowTodoInput.value = !toShowTodoInput.value;
+  if (toShowTodoInput.value) {
+    newTodo["title"] = "";
+    newTodo.value = { icon: defaultButtonTxt, title: "", "task-list": [] };
+    buttonTxt.value = defaultButtonTxt;
+    newTitle.value = true;
+  }
 };
 
 const onSelectGroupEmoji = (emoji) => {
   buttonTxt.value = emoji["i"];
   newTodo.value["icon"] = emoji["i"];
   showTodoEmojiPicker.value = !showTodoEmojiPicker.value;
+  //getNewTodo();
 };
 const toggleTodoEmojiPicker = () => {
   showTodoEmojiPicker.value = !showTodoEmojiPicker.value;
+  if (timerId.value !== null) {
+    clearTimeout(timerId.value);
+    timerId.value = null;
+  }
 };
 
-const getNewTodo = () => {
-  if (newTodo.value["title"]) todoListData.value.push(newTodo.value);
+const writeNewTodo = () => {
+  if (newTodo.value["title"]) {
+    if (newTodo.value["title"].length === 1 && newTitle.value) {
+      newTitle.value = false;
+      todoData.value.push(newTodo.value);
+    } else if (newTodo.value["title"].length === 1 && !newTitle.value) {
+      lastItem.value["title"] = newTodo.value["title"];
+    } else if (newTodo.value["title"].length > 1) {
+      lastItem.value["title"] = newTodo.value["title"];
+    }
+  }
+};
+
+const getNewTodo = (event) => {
+  if (newTodo.value["title"]) {
+    if (
+      newTodo.value["icon"] === defaultButtonTxt &&
+      !showTodoEmojiPicker.value
+    ) {
+      timerId.value = setTimeout(() => {
+        // If emoji picker is clicked then this will cancel
+        lastItem.value = { ...newTodo.value };
+
+        toggleTodoListInput();
+        timerId.value = null;
+      }, 2000);
+    } else {
+      lastItem.value = { ...newTodo.value };
+
+      toggleTodoListInput();
+    }
+  }
 };
 </script>
 
@@ -105,6 +148,13 @@ const getNewTodo = () => {
 
 ::v-deep(li.todo-list-style:hover) {
   background-color: #efecec;
+}
+
+.todo-lists__list-count {
+  border-radius: 50%;
+  padding: 0rem 0.6rem;
+  background-color: #e1e1e1;
+  margin-left: auto;
 }
 
 .todo-list__input {
@@ -159,3 +209,8 @@ const getNewTodo = () => {
   z-index: 2;
 }
 </style>
+<!-- if (
+          event.relatedTarget &&
+          !event.relatedTarget.tagName === "BUTTON" &&
+          !event.relatedTarget.classList.contains("create-list-btn")
+        ) -->

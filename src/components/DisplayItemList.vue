@@ -15,6 +15,7 @@
           :indexVal="index"
         ></slot>
         <span>{{ item["title"] }}</span>
+        <slot name="list-count" :count="item['task-count']"></slot>
       </li>
     </ul>
   </div>
