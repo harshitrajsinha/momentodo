@@ -1,7 +1,9 @@
 <template>
   <div class="main-container">
     <TodoList
-      v-model:todo-list-data="todoData"
+      v-model:todo-list-display="todoLists"
+      v-model:todo-data="todoData"
+      v-model:last-todo-item="todoData[todoData.length - 1]"
       class="left-section"
       @todoItem="showTaskLists"
     />
@@ -35,6 +37,7 @@ import TodoList from "./TodoList.vue";
 let taskDetails = ref(null);
 let taskListComp = ref(null);
 let taskLists = ref([]);
+let todoLists = ref([]);
 let toShowTaskDetails = ref(false);
 let listMaxWidth = ref("80%");
 let toShowSection = ref(false);
@@ -45,7 +48,7 @@ let todoData = ref([
     title: "Home",
     "task-list": [
       {
-        "is-completed": true,
+        "is-completed": false,
         title: "Add Sugar",
         "task-priority": "medium",
         notes: "testing",
@@ -85,10 +88,17 @@ const showTaskLists = (listId) => {
   if (toShowTaskDetails.value === true) handleModalClose(false);
 };
 
-if (taskListComp.value) {
-  const id = taskListComp.value.listId;
-  console.log("id", id);
-}
+todoLists.value = computed(() =>
+  todoData.value.map((elem) => {
+    return {
+      icon: elem["icon"],
+      title: elem["title"],
+      "task-count": elem["task-list"].filter(
+        (elem) => elem["is-completed"] === false
+      ).length,
+    };
+  })
+);
 
 const showTaskDetail = (listId) => {
   if (taskDetails.value) {

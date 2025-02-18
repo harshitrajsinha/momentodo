@@ -18,13 +18,13 @@
       </template>
     </DisplayItemList>
 
-    <CreateList v-model="taskLists" />
+    <CreateTaskList v-model:task-list-model="taskLists" />
   </div>
 </template>
 
 <script setup>
 import DisplayItemList from "./DisplayItemList.vue";
-import CreateList from "./CreateList.vue";
+import CreateTaskList from "./CreateTaskList.vue";
 
 const taskLists = defineModel("task-list-data");
 const emit = defineEmits(["getListId"]);
