@@ -1,85 +1,63 @@
 <template>
-  <div class="container">
-    <ul>
-      <li
-        v-for="(taskList, index) in taskLists"
-        :key="index"
-        class="task-lists"
-        @click="sendIndex(index)"
-        :style="{
-          border: taskList['is-completed']
-            ? '1px solid green'
-            : taskList['task-priority'] === ''
-            ? '1px solid blue'
-            : taskList['task-priority'] === 'urgent'
-            ? '1px solid #fe3c3c'
-            : taskList['task-priority'] === 'medium'
-            ? '1px solid orange'
-            : '1px solid #f3f33a',
-          textDecoration: taskList['is-completed'] ? 'line-through' : '',
-        }"
-      >
+  <div>
+    <DisplayItemList
+      ref="displayList"
+      v-model:list-model="taskLists"
+      listStyles="task-list-style"
+      listContainerStyle="list-container-style"
+      @getListId="getClickedListId"
+    >
+      <!-- slot component -->
+      <template #list-checkbox="{ completionStatus, indexVal }">
         <input
-          ref="completionInput"
           class="task-lists__is-completed"
           type="checkbox"
-          :checked="taskList['is-completed']"
-          @click="toggleCheckbox(index)"
+          :checked="completionStatus"
+          @click="toggleCheckbox(indexVal)"
         />
-        <span class="task-title-txt">{{ taskList.title }}</span>
-      </li>
-    </ul>
+      </template>
+    </DisplayItemList>
+
+    <CreateList v-model="taskLists" />
   </div>
 </template>
 
 <script setup>
-import { defineEmits, ref } from "vue";
-let completionInput = ref(null);
-let taskLists = defineModel("tasklists");
+import DisplayItemList from "./DisplayItemList.vue";
+import CreateList from "./CreateList.vue";
+
+const taskLists = defineModel("task-list-data");
+const emit = defineEmits(["getListId"]);
+
+const getClickedListId = (id) => {
+  emit("getListId", id);
+};
 
 const toggleCheckbox = (id) => {
   const isCompleted = taskLists.value[id]["is-completed"];
-  if (completionInput.value) {
-    taskLists.value[id]["is-completed"] = !isCompleted;
-  }
-};
-const emit = defineEmits(["get-index"]);
-
-const sendIndex = (index) => {
-  emit("get-index", index);
+  taskLists.value[id]["is-completed"] = !isCompleted;
 };
 </script>
 
-<style scroped>
-.container {
+<style scoped>
+::v-deep(div.list-container-style) {
   margin: 0 auto;
   padding: 2rem 6rem;
 }
-
-li span.task-title-txt {
-  overflow-x: scroll;
-}
-
-li span::-webkit-scrollbar {
-  height: auto;
-  background-color: white;
-}
-
-.task-lists {
-  background-color: white;
+::v-deep(li.task-list-style) {
   padding: 0.8rem;
-  padding-bottom: 0;
   margin-bottom: 0.5rem;
   border-radius: 0.5rem;
-  display: flex;
   gap: 1rem;
-  align-items: baseline;
   font-size: 1rem;
-  cursor: pointer;
   font-weight: 600;
 }
 
 .task-lists__is-completed {
   transform: scale(1.5);
+}
+
+::v-deep(li.task-list-style input[type="checkbox"]:checked) ~ * {
+  text-decoration: line-through;
 }
 </style>

@@ -1,26 +1,14 @@
 <template>
   <div class="main-container">
     <TodoList v-model:todo-list-data="todoData" class="left-section" />
-    <div class="mid-section" :style="{ maxWidth: listMaxWidth }">
-      <DisplayList
-        ref="displayList"
-        v-model:list-model="taskLists.value"
-        listStyles="task-list-style"
-        listContainerStyle="list-container-style"
-        @getListId="getListId"
-      >
-        <template #list-checkbox="{ completionStatus, indexVal }">
-          <input
-            class="task-lists__is-completed"
-            type="checkbox"
-            :checked="completionStatus"
-            @click="toggleCheckbox(indexVal)"
-          />
-        </template>
-      </DisplayList>
-
-      <CreateTodo v-model="taskLists.value" />
-    </div>
+    <TaskList
+      ref="taskListComp"
+      v-model:task-list-data="taskLists.value"
+      :test="taskLists"
+      class="mid-section"
+      :style="{ maxWidth: listMaxWidth }"
+      @getListId="showTaskDetail"
+    />
     <TaskDetails
       ref="taskDetails"
       v-model:allTaskData="taskLists.value"
@@ -32,17 +20,15 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, onUpdated, computed } from "vue";
-import CreateTodo from "./CreateTodo.vue";
-import DisplayList from "./DisplayList.vue";
 import TaskList from "./TaskList.vue";
 import TaskDetails from "./TaskDetails.vue";
 import TodoList from "./TodoList.vue";
 let taskDetails = ref(null);
-let displayList = ref(null);
-let currentList = ref({});
+let taskListComp = ref(null);
 let taskLists = ref([]);
 let toShow = ref(false);
 let listMaxWidth = ref("80%");
+
 let todoData = ref([
   {
     icon: "😁",
@@ -67,11 +53,31 @@ let todoData = ref([
   },
 ]);
 
+if (taskListComp.value) {
+  const id = taskListComp.value.listId;
+  console.log("id", id);
+}
+
 taskLists.value = computed(() =>
   todoData.value.map((elem) => {
     return elem["task-list"];
   })
 );
+
+const showTaskDetail = (listId) => {
+  if (taskDetails.value) {
+    taskDetails.value.getCurrentListData(listId);
+    toShow.value = true;
+    listMaxWidth.value = "50%";
+  }
+};
+
+const handleModalClose = (data) => {
+  if (data === false) {
+    toShow.value = false;
+    listMaxWidth.value = "80%";
+  }
+};
 
 // functionality to save data before page reloads or tab closes
 {
@@ -90,49 +96,9 @@ taskLists.value = computed(() =>
     window.removeEventListener("beforeunload", handleBeforeUnload);
   });
 }
-
-const getListId = (data) => {
-  if (taskDetails.value) {
-    taskDetails.value.getCurrentListData(data);
-    toShow.value = true;
-    listMaxWidth.value = "50%";
-  }
-};
-
-const toggleCheckbox = (id) => {
-  const isCompleted = todoData.value[id]["task-list"]["is-completed"];
-  todoData.value[id]["task-list"]["is-completed"] = !isCompleted;
-};
-
-const handleModalClose = (data) => {
-  if (data === false) {
-    toShow.value = false;
-    listMaxWidth.value = "80%";
-  }
-};
 </script>
 
 <style scoped>
-::v-deep(div.list-container-style) {
-  margin: 0 auto;
-  padding: 2rem 6rem;
-}
-::v-deep(li.task-list-style) {
-  padding: 0.8rem;
-  margin-bottom: 0.5rem;
-  border-radius: 0.5rem;
-  gap: 1rem;
-  font-size: 1rem;
-  font-weight: 600;
-}
-.task-lists__is-completed {
-  transform: scale(1.5);
-}
-
-::v-deep(li.task-list-style input[type="checkbox"]:checked) ~ * {
-  text-decoration: line-through;
-}
-
 .main-container {
   overflow: hidden;
   display: flex;

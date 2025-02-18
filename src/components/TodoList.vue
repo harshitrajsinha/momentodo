@@ -2,14 +2,14 @@
   <div class="todo-list-container">
     <div class="todo-list__heading">Lists</div>
     <!-- Pass a default icon in case icon is not present -->
-    <DisplayList
+    <DisplayItemList
       v-model:list-model="listItems.value"
       listStyles="todo-list-style"
       @getListId="handleListId"
       ><template #list-icon="{ icon }">
         <span>{{ icon }}</span>
       </template>
-    </DisplayList>
+    </DisplayItemList>
     <div :class="['todo-list__input', { active: toShowTodoInput }]">
       <button @click="toggleTodoEmojiPicker">{{ buttonTxt }}</button
       ><EmojiPicker
@@ -36,7 +36,7 @@
 <script setup>
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
-import DisplayList from "./DisplayList.vue";
+import DisplayItemList from "./DisplayItemList.vue";
 import CreateListBtn from "./CreateListBtn.vue";
 import { ref, computed } from "vue";
 

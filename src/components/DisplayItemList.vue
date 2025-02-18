@@ -6,7 +6,7 @@
         :key="index"
         class="displayList-style"
         :class="listStyles"
-        @click="$emit('getListId', index)"
+        @click="handleListClick(index)"
       >
         <slot name="list-icon" :icon="item['icon']"></slot>
         <slot
@@ -24,11 +24,15 @@
 import { ref, defineExpose } from "vue";
 const childListComponent = ref(null);
 const listModel = defineModel("list-model");
+const emit = defineEmits(["getListId"]);
 const { listStyles, listContainerStyle } = defineProps({
   listStyles: String,
   listContainerStyle: String,
 });
 defineExpose({ childListComponent });
+const handleListClick = (index) => {
+  emit("getListId", index);
+};
 </script>
 
 <style scoped>
