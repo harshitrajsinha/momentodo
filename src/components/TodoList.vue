@@ -7,7 +7,7 @@
       listStyles="todo-list-style"
       @getListId="handleListId"
       ><template #list-icon="{ icon }">
-        <span>{{ icon }}</span>
+        <span class="todo-list-icon">{{ icon }}</span>
       </template>
     </DisplayItemList>
     <div :class="['todo-list__input', { active: toShowTodoInput }]">
@@ -47,6 +47,7 @@ let showTodoEmojiPicker = ref(false);
 let todoListData = defineModel("todo-list-data");
 let listItems = ref([]);
 let toShowTodoInput = ref(false);
+let emit = defineEmits(["todoItem"]);
 
 listItems.value = computed(() =>
   todoListData.value.map((elem) => {
@@ -55,11 +56,10 @@ listItems.value = computed(() =>
 );
 
 const handleListId = (id) => {
-  console.log(id);
+  emit("todoItem", id);
 };
 
 const toggleTodoListInput = () => {
-  console.log("button clicked");
   toShowTodoInput.value = !toShowTodoInput.value;
 };
 
@@ -82,6 +82,7 @@ const getNewTodo = () => {
   position: relative;
   background-color: white;
   padding: 2rem;
+  padding-left: 1rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
   margin-left: 1rem;
@@ -89,17 +90,17 @@ const getNewTodo = () => {
 }
 
 .todo-list__heading {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 1.8rem;
+  padding-left: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
 ::v-deep(li.todo-list-style) {
   padding: 0.5rem;
-  padding-left: 0;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
   gap: 1rem;
   font-size: 1rem;
+  font-weight: 700;
 }
 
 ::v-deep(li.todo-list-style:hover) {
@@ -109,15 +110,17 @@ const getNewTodo = () => {
 .todo-list__input {
   display: flex;
   gap: 0.2rem;
-  margin-top: 1rem;
+  margin: 1rem 0;
   position: relative;
   bottom: -100vh;
-  transition: bottom 1.5s ease-in-out;
+  max-height: 0;
+  transition: max-height 0.8s ease-in-out;
 }
 
 .todo-list__input.active {
   position: relative;
   bottom: 0;
+  max-height: 200px;
 }
 
 .todo-list__input button {
@@ -138,9 +141,16 @@ const getNewTodo = () => {
 }
 
 ::v-deep(button.create-list-btn-style) {
-  position: absolute;
-  width: calc(100% - 4rem);
-  bottom: 2%;
+  width: -webkit-fill-available;
+  color: black;
+  background: #efecec;
+  text-align: left;
+  border: 1px solid rgb(96, 96, 96);
+  font-weight: 500;
+}
+
+.todo-list-icon {
+  transform: scale(1.3);
 }
 
 .v3-emoji-picker {

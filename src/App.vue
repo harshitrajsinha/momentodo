@@ -11,7 +11,9 @@ import Todo from "./components/Todo.vue";
   margin: 0;
   padding: 0;
   list-style: none;
-  font-family: sans-serif;
+  font-family: "Poppins", serif;
+  font-weight: 500;
+  font-style: normal;
   box-sizing: border-box;
 }
 body {
