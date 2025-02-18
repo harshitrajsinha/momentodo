@@ -1,6 +1,6 @@
 <template>
   <div class="main-container">
-    <TodoList v-model:todo-list-data="groupList" class="left-section" />
+    <TodoList v-model:todo-list-data="todoData" class="left-section" />
     <div class="mid-section" :style="{ maxWidth: listMaxWidth }">
       <DisplayList
         ref="displayList"
@@ -43,7 +43,7 @@ let currentList = ref({});
 let taskLists = ref([]);
 let toShow = ref(false);
 let listMaxWidth = ref("80%");
-let groupList = ref([
+let todoData = ref([
   {
     icon: "😁",
     title: "Home",
@@ -68,7 +68,7 @@ let groupList = ref([
 ]);
 
 taskLists.value = computed(() =>
-  groupList.value.map((elem) => {
+  todoData.value.map((elem) => {
     return elem["task-list"];
   })
 );
@@ -100,9 +100,8 @@ const getListId = (data) => {
 };
 
 const toggleCheckbox = (id) => {
-  const isCompleted = groupList.value[id]["task-list"]["is-completed"];
-  groupList.value[id]["task-list"]["is-completed"] = !isCompleted;
-  console.log(groupList.value);
+  const isCompleted = todoData.value[id]["task-list"]["is-completed"];
+  todoData.value[id]["task-list"]["is-completed"] = !isCompleted;
 };
 
 const handleModalClose = (data) => {

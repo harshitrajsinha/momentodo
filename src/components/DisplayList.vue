@@ -1,12 +1,12 @@
 <template>
-  <div class="display-list-container" :class="props.listContainerStyle">
+  <div class="display-list-container" :class="listContainerStyle">
     <ul ref="childListComponent">
       <li
         v-for="(item, index) in listModel"
         :key="index"
         class="displayList-style"
-        :class="props.listStyles"
-        @click="handleListClick(index)"
+        :class="listStyles"
+        @click="$emit('getListId', index)"
       >
         <slot name="list-icon" :icon="item['icon']"></slot>
         <slot
@@ -21,16 +21,13 @@
 </template>
 
 <script setup>
-import { defineProps, ref, defineEmits, defineExpose } from "vue";
+import { ref, defineExpose } from "vue";
 const childListComponent = ref(null);
 const listModel = defineModel("list-model");
-const props = defineProps(["listStyles", "listContainerStyle"]);
-const emit = defineEmits("getListId");
-
-const handleListClick = (index) => {
-  emit("getListId", index);
-};
-
+const { listStyles, listContainerStyle } = defineProps({
+  listStyles: String,
+  listContainerStyle: String,
+});
 defineExpose({ childListComponent });
 </script>
 

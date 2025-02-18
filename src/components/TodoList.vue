@@ -1,15 +1,16 @@
 <template>
   <div class="todo-list-container">
     <div class="todo-list__heading">Lists</div>
+    <!-- Pass a default icon in case icon is not present -->
     <DisplayList
-      v-model:list-model="listItems.value.value"
+      v-model:list-model="listItems.value"
       listStyles="todo-list-style"
       @getListId="handleListId"
       ><template #list-icon="{ icon }">
         <span>{{ icon }}</span>
       </template>
     </DisplayList>
-    <div class="todo-list__input">
+    <div :class="['todo-list__input', { active: toShowTodoInput }]">
       <button @click="toggleTodoEmojiPicker">{{ buttonTxt }}</button
       ><EmojiPicker
         v-if="showTodoEmojiPicker"
@@ -24,17 +25,11 @@
         @blur="getNewTodo"
       />
     </div>
-    <button class="todo-list-container__create-btn" @click="showBtn">
-      <font-awesome-icon
-        :style="{
-          transform: `rotate(${rotation}deg)`,
-          transition: `transform 1s`,
-          marginRight: `5px`,
-        }"
-        :icon="['fas', 'plus']"
-      />
-      Create new list
-    </button>
+    <CreateListBtn
+      btnText="Create new list"
+      class="create-list-btn-style"
+      @toShowModal="toggleTodoListInput"
+    />
   </div>
 </template>
 
@@ -42,6 +37,7 @@
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
 import DisplayList from "./DisplayList.vue";
+import CreateListBtn from "./CreateListBtn.vue";
 import { ref, computed } from "vue";
 
 const defaultButtonTxt = "😁";
@@ -49,7 +45,8 @@ let buttonTxt = ref(defaultButtonTxt);
 let newTodo = ref({ icon: buttonTxt.value, title: "" });
 let showTodoEmojiPicker = ref(false);
 let todoListData = defineModel("todo-list-data");
-let listItems = [];
+let listItems = ref([]);
+let toShowTodoInput = ref(false);
 
 listItems.value = computed(() =>
   todoListData.value.map((elem) => {
@@ -61,10 +58,11 @@ const handleListId = (id) => {
   console.log(id);
 };
 
-let rotation = ref(90);
-const showBtn = () => {
-  rotation.value = 90 - rotation.value;
+const toggleTodoListInput = () => {
+  console.log("button clicked");
+  toShowTodoInput.value = !toShowTodoInput.value;
 };
+
 const onSelectGroupEmoji = (emoji) => {
   buttonTxt.value = emoji["i"];
   newTodo.value["icon"] = emoji["i"];
@@ -80,18 +78,6 @@ const getNewTodo = () => {
 </script>
 
 <style scoped>
-::v-deep(li.todo-list-style) {
-  padding: 0.5rem;
-  padding-left: 0;
-  margin-bottom: 0.5rem;
-  gap: 1rem;
-  font-size: 1rem;
-}
-
-::v-deep(li.todo-list-style:hover) {
-  background-color: #efecec;
-}
-
 .todo-list-container {
   position: relative;
   background-color: white;
@@ -108,11 +94,30 @@ const getNewTodo = () => {
   margin-bottom: 1.5rem;
 }
 
+::v-deep(li.todo-list-style) {
+  padding: 0.5rem;
+  padding-left: 0;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+  font-size: 1rem;
+}
+
+::v-deep(li.todo-list-style:hover) {
+  background-color: #efecec;
+}
+
 .todo-list__input {
   display: flex;
   gap: 0.2rem;
   margin-top: 1rem;
   position: relative;
+  bottom: -100vh;
+  transition: bottom 1.5s ease-in-out;
+}
+
+.todo-list__input.active {
+  position: relative;
+  bottom: 0;
 }
 
 .todo-list__input button {
@@ -132,19 +137,10 @@ const getNewTodo = () => {
   outline: none;
 }
 
-.todo-list-container__create-btn {
-  font-size: 1rem;
+::v-deep(button.create-list-btn-style) {
   position: absolute;
-  bottom: 2%;
-  margin-top: 0.5rem;
-  border-radius: 1.5rem;
-  color: white;
-  background-color: black;
-  cursor: pointer;
   width: calc(100% - 4rem);
-  border: none;
-  padding: 0.8rem;
-  z-index: 1;
+  bottom: 2%;
 }
 
 .v3-emoji-picker {
