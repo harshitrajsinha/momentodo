@@ -32,7 +32,7 @@ const handleBtnClick = () => {
   background-color: black;
   cursor: pointer;
   border: none;
-  padding: 0.8rem;
+  padding: 0.6rem 0.5rem;
   z-index: 1;
 }
 </style>

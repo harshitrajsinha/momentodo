@@ -1,18 +1,27 @@
 <template>
   <div class="main-container">
-    <TodoList v-model:todo-list-data="todoData" class="left-section" />
+    <TodoList
+      v-model:todo-list-data="todoData"
+      class="left-section"
+      @todoItem="showTaskLists"
+    />
+    <div v-if="!toShowSection" :class="['default-txt']">
+      <div>"A goal without a plan is just a wish."</div>
+      <div class="author-name">- Antoine de Saint-Exupéry</div>
+    </div>
     <TaskList
+      v-if="toShowSection"
       ref="taskListComp"
       v-model:task-list-data="taskLists.value"
-      :test="taskLists"
-      class="mid-section"
+      :class="['mid-section']"
       :style="{ maxWidth: listMaxWidth }"
       @getListId="showTaskDetail"
     />
     <TaskDetails
+      v-if="toShowSection"
       ref="taskDetails"
       v-model:allTaskData="taskLists.value"
-      :class="['right-section', { active: toShow }]"
+      :class="['right-section', { active: toShowTaskDetails }]"
       @close-modal="handleModalClose"
     />
   </div>
@@ -26,55 +35,72 @@ import TodoList from "./TodoList.vue";
 let taskDetails = ref(null);
 let taskListComp = ref(null);
 let taskLists = ref([]);
-let toShow = ref(false);
+let toShowTaskDetails = ref(false);
 let listMaxWidth = ref("80%");
+let toShowSection = ref(false);
 
 let todoData = ref([
   {
-    icon: "😁",
+    icon: "🏠",
     title: "Home",
-    "task-list": {
-      "is-completed": true,
-      title: "Add Sugar",
-      "task-priority": "medium",
-      notes: "testing",
-    },
+    "task-list": [
+      {
+        "is-completed": true,
+        title: "Add Sugar",
+        "task-priority": "medium",
+        notes: "testing",
+      },
+      {
+        "is-completed": false,
+        title: "Add Spices",
+        "task-priority": "medium",
+        notes: "testing",
+      },
+      {
+        "is-completed": true,
+        title: "Add Salt",
+        "task-priority": "medium",
+        notes: "testing",
+      },
+    ],
   },
   {
     icon: "😎",
     title: "Tech",
-    "task-list": {
-      "is-completed": false,
-      title: "Add Veggies",
-      "task-priority": "urgent",
-      notes:
-        "testing testing testing testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testing",
-    },
+    "task-list": [
+      {
+        "is-completed": false,
+        title: "Add Veggies",
+        "task-priority": "urgent",
+        notes:
+          "testing testing testing testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testing",
+      },
+    ],
   },
 ]);
+
+const showTaskLists = (listId) => {
+  toShowSection.value = true;
+  taskLists.value = computed(() => todoData.value[listId]["task-list"]);
+  if (toShowTaskDetails.value === true) handleModalClose(false);
+};
 
 if (taskListComp.value) {
   const id = taskListComp.value.listId;
   console.log("id", id);
 }
 
-taskLists.value = computed(() =>
-  todoData.value.map((elem) => {
-    return elem["task-list"];
-  })
-);
-
 const showTaskDetail = (listId) => {
   if (taskDetails.value) {
     taskDetails.value.getCurrentListData(listId);
-    toShow.value = true;
+    toShowTaskDetails.value = true;
     listMaxWidth.value = "50%";
   }
 };
 
 const handleModalClose = (data) => {
   if (data === false) {
-    toShow.value = false;
+    toShowTaskDetails.value = false;
     listMaxWidth.value = "80%";
   }
 };
@@ -99,6 +125,23 @@ const handleModalClose = (data) => {
 </script>
 
 <style scoped>
+.default-txt {
+  color: #888585a7;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  text-align: center;
+  font-size: 3rem;
+  width: calc(100% - 23%);
+}
+
+.default-txt .author-name {
+  font-size: 2rem;
+  font-style: italic;
+}
+
 .main-container {
   overflow: hidden;
   display: flex;
