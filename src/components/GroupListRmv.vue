@@ -14,8 +14,6 @@
 </template>
 <script setup>
 const groupListModel = defineModel("group-list");
-console.log(groupListModel);
-console.log("raj");
 </script>
 
 <style scoped>
