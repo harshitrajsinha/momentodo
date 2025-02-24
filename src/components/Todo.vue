@@ -105,7 +105,17 @@ todoLists.value = computed(() =>
   })
 );
 
-const showTaskDetail = (listId) => {
+const showTaskDetail = (listId, isCheckbox) => {
+  if (isCheckbox) {
+    if (taskLists.value.value) {
+      taskLists.value.value["is-completed"] =
+        !taskLists.value.value["is-completed"];
+    }
+    if (toShowSection.value) {
+      taskDetails.value.getCurrentListData(listId);
+    }
+    return;
+  }
   if (taskDetails.value) {
     taskDetails.value.getCurrentListData(listId);
     toCloseTaskDetails.value = false;

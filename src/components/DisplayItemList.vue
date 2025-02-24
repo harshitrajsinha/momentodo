@@ -6,7 +6,7 @@
         :key="index"
         class="displayList-style"
         :class="listStyles"
-        @click="handleListClick(index)"
+        @click="handleListClick(index, $event)"
       >
         <slot name="list-icon" :icon="item['icon']"></slot>
         <slot
@@ -28,14 +28,14 @@
 </template>
 
 <script setup>
-import { ref, defineExpose, onMounted, onUpdated } from "vue";
+import { ref, defineExpose } from "vue";
 const childListComponent = ref(null);
 const listTitle = ref(null);
+let isCheckbox = ref(false);
 const listModel = defineModel("list-model");
 const emit = defineEmits(["getListId", "getTitleKey"]);
 
 const changeTitle = (index) => {
-  console.log("here");
   emit("getTitleKey", index);
 };
 
@@ -45,8 +45,13 @@ const { listStyles, listContainerStyle } = defineProps({
 });
 defineExpose({ childListComponent });
 
-const handleListClick = (index) => {
-  emit("getListId", index);
+const handleListClick = (index, event) => {
+  if (event?.target?.type === "checkbox") {
+    isCheckbox.value = true;
+  } else {
+    isCheckbox.value = false;
+  }
+  emit("getListId", index, isCheckbox.value);
 };
 </script>
 

@@ -29,8 +29,8 @@ import CreateTaskList from "./CreateTaskList.vue";
 const emit = defineEmits(["getListId", "reloadTaskDetail"]);
 let taskLists = defineModel("task-list-data");
 
-const getClickedListId = (id) => {
-  emit("getListId", id);
+const getClickedListId = (id, isCheckbox) => {
+  emit("getListId", id, isCheckbox);
 };
 
 const updateTitle = (key) => {
