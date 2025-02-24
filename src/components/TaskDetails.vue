@@ -78,8 +78,18 @@
       ></textarea>
     </label>
     <div class="task-details__set-btn">
-      <button class="save-btn" @click="saveData">Save</button>
-      <button class="reset-btn" @click="resetData">Reset</button>
+      <button
+        :class="['save-btn', { active: animateSaveBgClr }]"
+        @click="saveData"
+      >
+        Save
+      </button>
+      <button
+        :class="['reset-btn', { active: animateResetBgClr }]"
+        @click="resetData"
+      >
+        Reset
+      </button>
     </div>
   </div>
 </template>
@@ -87,16 +97,20 @@
 <script setup>
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
-import { ref, defineEmits, onMounted } from "vue";
+import { ref, defineEmits } from "vue";
+
 let showEmojiPicker = ref(false);
 let currentListId = ref(-1);
-
 let currentTitle = ref("");
 let currentPriority = ref("");
 let currentNotes = ref("");
 let currentCompletionStatus = ref(false);
 let initalTaskData = ref({});
 let allData = defineModel("allTaskData");
+let animateSaveBgClr = ref(false);
+let animateResetBgClr = ref(false);
+let timerId = ref(null);
+
 const getCurrentListData = (data) => {
   currentListId.value = data;
   initalTaskData.value = allData.value[data];
@@ -107,12 +121,30 @@ const getCurrentListData = (data) => {
 };
 
 const saveData = () => {
+  if (!animateSaveBgClr.value) {
+    animateSaveBgClr.value = true;
+    if (!timerId.value) {
+      timerId.value = setTimeout(() => {
+        animateSaveBgClr.value = false;
+        timerId.value = null;
+      }, 600);
+    }
+  }
   allData.value[currentListId.value]["title"] = currentTitle.value;
   allData.value[currentListId.value]["task-priority"] = currentPriority.value;
   allData.value[currentListId.value]["notes"] = currentNotes.value;
 };
 
 const resetData = () => {
+  if (!animateResetBgClr.value) {
+    animateResetBgClr.value = true;
+    if (!timerId.value) {
+      timerId.value = setTimeout(() => {
+        animateResetBgClr.value = false;
+        timerId.value = null;
+      }, 600);
+    }
+  }
   currentTitle.value = initalTaskData.value["title"];
   currentPriority.value = initalTaskData.value["task-priority"];
   currentNotes.value = initalTaskData.value["notes"];
@@ -261,5 +293,22 @@ textarea {
   border: none;
   padding: 0.8rem;
   z-index: 1;
+}
+
+@keyframes swipe {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.save-btn.active,
+.reset-btn.active {
+  animation: swipe 0.5s ease;
 }
 </style>

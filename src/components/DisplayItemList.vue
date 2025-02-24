@@ -14,7 +14,13 @@
           :completionStatus="item['is-completed']"
           :indexVal="index"
         ></slot>
-        <span>{{ item["title"] }}</span>
+        <span
+          ref="listTitle"
+          :data-key="index"
+          class="list-name"
+          @dblclick="changeTitle(index)"
+          >{{ item["title"] }}</span
+        >
         <slot name="list-count" :count="item['task-count']"></slot>
       </li>
     </ul>
@@ -22,15 +28,23 @@
 </template>
 
 <script setup>
-import { ref, defineExpose } from "vue";
+import { ref, defineExpose, onMounted, onUpdated } from "vue";
 const childListComponent = ref(null);
+const listTitle = ref(null);
 const listModel = defineModel("list-model");
-const emit = defineEmits(["getListId"]);
+const emit = defineEmits(["getListId", "getTitleKey"]);
+
+const changeTitle = (index) => {
+  console.log("here");
+  emit("getTitleKey", index);
+};
+
 const { listStyles, listContainerStyle } = defineProps({
   listStyles: String,
   listContainerStyle: String,
 });
 defineExpose({ childListComponent });
+
 const handleListClick = (index) => {
   emit("getListId", index);
 };
@@ -43,5 +57,9 @@ const handleListClick = (index) => {
   display: flex;
   align-items: baseline;
   cursor: pointer;
+}
+.list-name {
+  user-select: none;
+  padding-right: 0.5rem;
 }
 </style>

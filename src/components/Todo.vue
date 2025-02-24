@@ -18,6 +18,7 @@
       :class="['mid-section']"
       :style="{ maxWidth: listMaxWidth }"
       @getListId="showTaskDetail"
+      @reloadTaskDetail="showTaskDetail"
     />
     <TaskDetails
       v-if="toShowSection"
@@ -33,7 +34,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, onUpdated, computed } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import TaskList from "./TaskList.vue";
 import TaskDetails from "./TaskDetails.vue";
 import TodoList from "./TodoList.vue";
@@ -154,7 +155,7 @@ const hideTaskDetails = (data) => {
 }
 
 .default-txt .author-name {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-style: italic;
 }
 

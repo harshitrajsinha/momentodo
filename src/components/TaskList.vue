@@ -6,6 +6,7 @@
       listStyles="task-list-style"
       listContainerStyle="list-container-style"
       @getListId="getClickedListId"
+      @getTitleKey="updateTitle"
     >
       <!-- slot component -->
       <template #list-checkbox="{ completionStatus, indexVal }">
@@ -17,7 +18,6 @@
         />
       </template>
     </DisplayItemList>
-
     <CreateTaskList v-model:task-list-model="taskLists" />
   </div>
 </template>
@@ -26,11 +26,30 @@
 import DisplayItemList from "./DisplayItemList.vue";
 import CreateTaskList from "./CreateTaskList.vue";
 
-const taskLists = defineModel("task-list-data");
-const emit = defineEmits(["getListId"]);
+const emit = defineEmits(["getListId", "reloadTaskDetail"]);
+let taskLists = defineModel("task-list-data");
 
 const getClickedListId = (id) => {
   emit("getListId", id);
+};
+
+const updateTitle = (key) => {
+  if (taskLists.value) {
+    const list = document
+      .querySelector(".mid-section")
+      .querySelector(`[data-key="${key}"]`);
+    list.contentEditable = "true";
+    list.addEventListener("keyup", function () {
+      if (list.textContent.length >= 50) {
+        list.textContent = list.textContent.slice(0, 50);
+      }
+    });
+    list.addEventListener("focusout", function () {
+      list.contentEditable = "false";
+      taskLists.value[key]["title"] = list.textContent;
+      emit("reloadTaskDetail", key);
+    });
+  }
 };
 
 const toggleCheckbox = (id) => {

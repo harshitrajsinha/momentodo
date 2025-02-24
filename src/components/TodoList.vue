@@ -6,6 +6,7 @@
       v-model:list-model="todoListData.value"
       listStyles="todo-list-style"
       @getListId="handleListId"
+      @getTitleKey="updateTitle"
       ><template #list-icon="{ icon }">
         <span class="todo-list-icon">{{ icon }}</span>
       </template>
@@ -23,7 +24,7 @@
       />
       <input
         type="text"
-        maxlength="20"
+        maxlength="15"
         v-model="newTodo['title']"
         @input="writeNewTodo"
         @blur="getNewTodo"
@@ -68,6 +69,24 @@ const toggleTodoListInput = () => {
     newTodo.value = { icon: defaultButtonTxt, title: "", "task-list": [] };
     buttonTxt.value = defaultButtonTxt;
     newTitle.value = true;
+  }
+};
+
+const updateTitle = (key) => {
+  if (todoListData.value.value) {
+    const list = document
+      .querySelector(".left-section")
+      .querySelector(`[data-key="${key}"]`);
+    list.contentEditable = "true";
+    list.addEventListener("keyup", function () {
+      if (list.textContent.length >= 15) {
+        list.textContent = list.textContent.slice(0, 15);
+      }
+    });
+    list.addEventListener("focusout", function () {
+      list.contentEditable = "false";
+      todoListData.value.value[key]["title"] = list.textContent;
+    });
   }
 };
 
