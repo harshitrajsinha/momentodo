@@ -23,8 +23,11 @@
       v-if="toShowSection"
       ref="taskDetails"
       v-model:allTaskData="taskLists.value"
-      :class="['right-section', { active: toShowTaskDetails }]"
-      @close-modal="handleModalClose"
+      :class="[
+        'right-section',
+        { active: toShowTaskDetails, inactive: toCloseTaskDetails },
+      ]"
+      @close-modal="hideTaskDetails"
     />
   </div>
 </template>
@@ -39,6 +42,7 @@ let taskListComp = ref(null);
 let taskLists = ref([]);
 let todoLists = ref([]);
 let toShowTaskDetails = ref(false);
+let toCloseTaskDetails = ref(false);
 let listMaxWidth = ref("80%");
 let toShowSection = ref(false);
 
@@ -85,7 +89,7 @@ let todoData = ref([
 const showTaskLists = (listId) => {
   toShowSection.value = true;
   taskLists.value = computed(() => todoData.value[listId]["task-list"]);
-  if (toShowTaskDetails.value === true) handleModalClose(false);
+  if (toShowTaskDetails.value === true) hideTaskDetails(false);
 };
 
 todoLists.value = computed(() =>
@@ -103,14 +107,16 @@ todoLists.value = computed(() =>
 const showTaskDetail = (listId) => {
   if (taskDetails.value) {
     taskDetails.value.getCurrentListData(listId);
+    toCloseTaskDetails.value = false;
     toShowTaskDetails.value = true;
     listMaxWidth.value = "50%";
   }
 };
 
-const handleModalClose = (data) => {
+const hideTaskDetails = (data) => {
   if (data === false) {
     toShowTaskDetails.value = false;
+    toCloseTaskDetails.value = true;
     listMaxWidth.value = "80%";
   }
 };
@@ -163,15 +169,58 @@ const handleModalClose = (data) => {
   height: calc(100vh - 2rem);
 }
 
+@keyframes showTaskLists {
+  0% {
+    top: -100vh;
+    opacity: 0;
+  }
+  100% {
+    top: 0;
+    opacity: 1;
+  }
+}
+
 .mid-section {
+  position: relative;
   flex-grow: 1;
+  animation: showTaskLists 1.5s ease;
+}
+
+@keyframes closeTaskDetails {
+  0% {
+    right: 0;
+    opacity: 1;
+    width: 25%;
+  }
+  100% {
+    right: -50vw;
+    opacity: 0;
+    width: 0%;
+  }
+}
+
+@keyframes openTaskDetails {
+  0% {
+    right: -50vw;
+    opacity: 0;
+  }
+  100% {
+    right: 0;
+    opacity: 1;
+  }
 }
 
 .right-section {
   width: 0%;
-  position: relative;
   right: -50vw;
-  transition: right 1.5s;
+  position: relative;
+}
+
+.right-section.inactive {
+  width: 0%;
+  right: -50vw;
+  position: relative;
+  animation: closeTaskDetails 0.5s ease;
 }
 
 .right-section.active {
@@ -181,5 +230,6 @@ const handleModalClose = (data) => {
   margin-top: 1rem;
   margin-right: 1rem;
   border-radius: 0.5rem;
+  animation: openTaskDetails 3s ease;
 }
 </style>

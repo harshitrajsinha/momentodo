@@ -42,6 +42,7 @@
         <input
           class="task-details__title"
           type="'text'"
+          maxlength="50"
           placeholder="Edit title"
           v-model="currentTitle"
         />
