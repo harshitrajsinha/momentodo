@@ -17,10 +17,15 @@ import { ref } from "vue";
 let rotation = ref(90);
 defineProps({ btnText: String });
 const emit = defineEmits(["toShowModal"]);
+
 const handleBtnClick = () => {
-  rotation.value = 90 - rotation.value;
   emit("toShowModal");
 };
+
+const rotateIcon = () => {
+  rotation.value = 90 - rotation.value;
+};
+defineExpose({ rotateIcon });
 </script>
 
 <style scoped>

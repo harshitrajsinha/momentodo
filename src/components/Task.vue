@@ -1,5 +1,5 @@
 <template>
-  <div class="task-container">
+  <div ref="isModalOpen" class="task-container">
     <div class="task-container__elem task-container__create-task">
       <input
         v-model="taskCompleted"
@@ -12,6 +12,7 @@
         class="create-task__text-input"
         id="task-input"
         type="'text'"
+        maxlength="50"
         v-model="taskTitle"
         ref="focusOnInput"
         placeholder="Create new task"
@@ -51,14 +52,24 @@
 <script setup>
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
-import { defineProps, ref, onMounted, defineExpose } from "vue";
+import {
+  defineProps,
+  ref,
+  onMounted,
+  defineExpose,
+  onUpdated,
+  onUnmounted,
+  nextTick,
+} from "vue";
 const props = defineProps(["toReset"]);
 const resetVal = ref(props.toReset);
 const initalTaskCompleted = false;
 const initalTaskTitle = "";
 const initalTaskPriority = "";
 const initalTaskNotes = "";
+let isModalOpen = ref(null);
 let showEmojiPicker = ref(false);
+let recentlyAddedList = ref(false);
 let taskList = defineModel("task-list");
 let lastListItem = defineModel("last-list-item");
 
@@ -67,6 +78,7 @@ let taskCompleted = ref(initalTaskCompleted);
 let taskTitle = ref(initalTaskTitle);
 let taskPriority = ref(initalTaskPriority);
 let taskNotes = ref(initalTaskNotes);
+const emit = defineEmits(["toShowModal"]);
 let newTaskObj = ref({
   "is-completed": taskCompleted.value,
   title: taskTitle.value,
@@ -97,7 +109,6 @@ const resetTaskFields = () => {
     notes: taskNotes.value,
   };
 };
-
 defineExpose({ resetTaskFields });
 
 onMounted(() => {
@@ -105,6 +116,37 @@ onMounted(() => {
     focusOnInput.value.focus();
   }
 });
+
+onUpdated(async () => {
+  await nextTick(); // Ensures DOM updates before checking classList
+
+  if (isModalOpen.value && isModalOpen.value.classList.contains("active")) {
+    document.body.addEventListener("click", toCloseTaskModal);
+  }
+});
+
+onUnmounted(() => {
+  document.body.removeEventListener("click", toCloseTaskModal);
+});
+
+// Close createTaskModal if clicked outside
+const toCloseTaskModal = (event) => {
+  if (
+    !(event?.target?.nodeName === "BUTTON") &&
+    !event?.target?.classList?.contains("create-list-btn") &&
+    !event?.target?.parentElement?.classList?.contains(
+      "task-container__elem"
+    ) &&
+    !event?.target?.parentElement?.classList?.contains("task-container") &&
+    !event?.target?.parentElement?.parentElement?.classList?.contains(
+      "v3-emojis"
+    )
+  ) {
+    emit("toShowModal");
+    document.body.removeEventListener("click", toCloseTaskModal);
+  }
+};
+
 const addNewTask = (event) => {
   if (event.target.id === "task-checkbox") {
     newTaskObj.value["is-completed"] = taskCompleted.value;
@@ -116,17 +158,18 @@ const addNewTask = (event) => {
     newTaskObj.value["title"] = taskTitle.value;
   }
 
+  // Updating source data with new item
   if (newTaskObj.value["title"] !== "") {
-    if (newTaskObj.value["title"]) {
-      if (newTaskObj.value["title"].length === 1) {
-        console.log(taskList.value, "raj", newTaskObj.value);
-
-        taskList.value.push(newTaskObj.value);
-        console.log(taskList.value, "rajj", newTaskObj.value);
-      } else if (newTaskObj.value["title"].length > 1) {
-        lastListItem.value = newTaskObj.value;
-        console.log(lastListItem.value, "harhist", newTaskObj.value);
+    if (newTaskObj.value["title"].length === 1) {
+      if (!recentlyAddedList.value) {
+        recentlyAddedList.value = true;
+        taskList.value.push(newTaskObj.value); // creating new item in source
+      } else {
+        lastListItem.value = newTaskObj.value; // update last item
       }
+    } else if (newTaskObj.value["title"].length > 1) {
+      // update last item
+      lastListItem.value = newTaskObj.value;
     }
   }
 };

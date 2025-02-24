@@ -5,8 +5,10 @@
       v-model:last-list-item="taskListModel[taskListModel.length - 1]"
       :class="['add-todo', { active: toShow }]"
       ref="taskCreateInstance"
+      @toShowModal="showCreateTaskModal"
     />
     <CreateListBtn
+      ref="createListBtn"
       btnText="Create new tasks"
       class="create-task-btn-style"
       @toShowModal="showCreateTaskModal"
@@ -21,11 +23,14 @@ import CreateListBtn from "./CreateListBtn.vue";
 
 const taskCreateInstance = ref(null);
 let toShow = ref(false);
+let createListBtn = ref(null);
 let taskListModel = defineModel("task-list-model");
+
 const showCreateTaskModal = () => {
   if (taskCreateInstance.value) {
     taskCreateInstance.value.resetTaskFields();
   }
+  createListBtn.value.rotateIcon();
   toShow.value = !toShow.value;
 };
 </script>

@@ -23,7 +23,7 @@
       />
       <input
         type="text"
-        maxlength="25"
+        maxlength="20"
         v-model="newTodo['title']"
         @input="writeNewTodo"
         @blur="getNewTodo"
@@ -75,7 +75,7 @@ const onSelectGroupEmoji = (emoji) => {
   buttonTxt.value = emoji["i"];
   newTodo.value["icon"] = emoji["i"];
   showTodoEmojiPicker.value = !showTodoEmojiPicker.value;
-  //getNewTodo();
+  getNewTodo(false);
 };
 const toggleTodoEmojiPicker = () => {
   showTodoEmojiPicker.value = !showTodoEmojiPicker.value;
@@ -85,7 +85,17 @@ const toggleTodoEmojiPicker = () => {
   }
 };
 
-const writeNewTodo = () => {
+const writeNewTodo = (event) => {
+  if (event.inputType === "deleteWordBackward" && event.data === null) {
+    // delete last todo
+    if (timerId.value !== null) {
+      console.log("clear");
+      clearTimeout(timerId.value);
+      timerId.value = null;
+    }
+    todoData.value.pop();
+    newTitle.value = true;
+  }
   if (newTodo.value["title"]) {
     if (newTodo.value["title"].length === 1 && newTitle.value) {
       newTitle.value = false;
@@ -99,21 +109,34 @@ const writeNewTodo = () => {
 };
 
 const getNewTodo = (event) => {
+  if (
+    event?.relatedTarget?.nodeName === "BUTTON" &&
+    event?.relatedTarget?.classList.contains("create-list-btn")
+  ) {
+    if (newTodo.value["title"].length) {
+      timerId = setTimeout(() => {
+        todoData.value.pop();
+        timerId = null;
+      }, 1000);
+    }
+    return;
+  }
   if (newTodo.value["title"]) {
     if (
       newTodo.value["icon"] === defaultButtonTxt &&
       !showTodoEmojiPicker.value
     ) {
-      timerId.value = setTimeout(() => {
-        // If emoji picker is clicked then this will cancel
-        lastItem.value = { ...newTodo.value };
-
-        toggleTodoListInput();
-        timerId.value = null;
-      }, 2000);
+      if (!timerId.value) {
+        timerId.value = setTimeout(() => {
+          // If emoji picker is not clicked
+          lastItem.value = { ...newTodo.value };
+          toggleTodoListInput();
+          timerId.value = null;
+        }, 1500);
+      }
     } else {
+      // If emoji picker was clicked
       lastItem.value = { ...newTodo.value };
-
       toggleTodoListInput();
     }
   }
