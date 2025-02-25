@@ -19,6 +19,7 @@
       :style="{ maxWidth: listMaxWidth }"
       @getListId="showTaskDetail"
       @reloadTaskDetail="showTaskDetail"
+      @close-taskD-modal="hideTaskDetails"
     />
     <TaskDetails
       v-if="toShowSection"
@@ -125,6 +126,9 @@ const showTaskDetail = (listId, isCheckbox) => {
 };
 
 const hideTaskDetails = (data) => {
+  if (!toShowTaskDetails.value) {
+    return;
+  }
   if (data === false) {
     toShowTaskDetails.value = false;
     toCloseTaskDetails.value = true;

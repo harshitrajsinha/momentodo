@@ -7,6 +7,7 @@
       listContainerStyle="list-container-style"
       @getListId="getClickedListId"
       @getTitleKey="updateTitle"
+      @deleteList="deleteList"
     >
       <!-- slot component -->
       <template #list-checkbox="{ completionStatus, indexVal }">
@@ -25,12 +26,42 @@
 <script setup>
 import DisplayItemList from "./DisplayItemList.vue";
 import CreateTaskList from "./CreateTaskList.vue";
+import { ref } from "vue";
 
-const emit = defineEmits(["getListId", "reloadTaskDetail"]);
+let contentEditable = ref(false);
+let isCheckbox = ref(false);
+let isOptions = ref(false);
+
+const emit = defineEmits([
+  "getListId",
+  "reloadTaskDetail",
+  "close-taskD-modal",
+]);
 let taskLists = defineModel("task-list-data");
 
-const getClickedListId = (id, isCheckbox) => {
-  emit("getListId", id, isCheckbox);
+const getClickedListId = (id, event) => {
+  if (event?.target?.type === "checkbox") {
+    isCheckbox.value = true;
+    emit("getListId", id, isCheckbox.value);
+    return;
+  }
+  if (event?.target?.className === "options-container") {
+    return;
+  }
+  if (event?.target?.className === "options-button") {
+    return;
+  } else if (event?.target?.className === "opt-edit") {
+    return;
+  } else if (event?.target?.className === "opt-delete") {
+    return;
+  } else if (
+    event?.target?.className === "list-name" &&
+    contentEditable.value
+  ) {
+    return;
+  }
+  isCheckbox.value = false;
+  emit("getListId", id, isCheckbox.value);
 };
 
 const updateTitle = (key) => {
@@ -39,13 +70,17 @@ const updateTitle = (key) => {
       .querySelector(".mid-section")
       .querySelector(`[data-key="${key}"]`);
     list.contentEditable = "true";
+    contentEditable.value = true;
+    list.focus();
     list.addEventListener("keyup", function () {
       if (list.textContent.length >= 50) {
-        list.textContent = list.textContent.slice(0, 50);
+        contentEditable.value = false;
+        list.textContent = list.textContent.slice(0, 49);
       }
     });
     list.addEventListener("focusout", function () {
       list.contentEditable = "false";
+      contentEditable.value = true;
       taskLists.value[key]["title"] = list.textContent;
       emit("reloadTaskDetail", key);
     });
@@ -55,6 +90,11 @@ const updateTitle = (key) => {
 const toggleCheckbox = (id) => {
   const isCompleted = taskLists.value[id]["is-completed"];
   taskLists.value[id]["is-completed"] = !isCompleted;
+};
+
+const deleteList = (id) => {
+  taskLists.value.splice(id, 1);
+  emit("close-taskD-modal", false);
 };
 </script>
 
@@ -76,7 +116,7 @@ const toggleCheckbox = (id) => {
   transform: scale(1.5);
 }
 
-::v-deep(li.task-list-style input[type="checkbox"]:checked) ~ * {
+::v-deep(li.task-list-style input[type="checkbox"]:checked) ~ .list-name {
   text-decoration: line-through;
 }
 </style>

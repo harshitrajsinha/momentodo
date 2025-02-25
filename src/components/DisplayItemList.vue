@@ -18,10 +18,31 @@
           ref="listTitle"
           :data-key="index"
           class="list-name"
-          @dblclick="changeTitle(index)"
+          @dblclick="changeTitle(index, $event)"
           >{{ item["title"] }}</span
         >
         <slot name="list-count" :count="item['task-count']"></slot>
+        <div class="options-container" @click="handleOptions($event)">
+          <div :style="{ transform: `rotate(90deg)` }" class="options-button">
+            ...
+          </div>
+          <div class="options" :data-key="index">
+            <div
+              class="opt-edit"
+              :data-key="index"
+              @click="changeTitle(index, $event)"
+            >
+              Edit
+            </div>
+            <div
+              class="opt-delete"
+              :data-key="index"
+              @click="handleListDelete(index, $event)"
+            >
+              Delete
+            </div>
+          </div>
+        </div>
       </li>
     </ul>
   </div>
@@ -31,11 +52,14 @@
 import { ref, defineExpose } from "vue";
 const childListComponent = ref(null);
 const listTitle = ref(null);
-let isCheckbox = ref(false);
 const listModel = defineModel("list-model");
-const emit = defineEmits(["getListId", "getTitleKey"]);
+const emit = defineEmits(["getListId", "getTitleKey", "deleteList"]);
 
-const changeTitle = (index) => {
+const changeTitle = (index, event) => {
+  event.stopPropagation();
+  if (event?.target?.className === "opt-edit") {
+    handleOptions(event);
+  }
   emit("getTitleKey", index);
 };
 
@@ -46,12 +70,31 @@ const { listStyles, listContainerStyle } = defineProps({
 defineExpose({ childListComponent });
 
 const handleListClick = (index, event) => {
-  if (event?.target?.type === "checkbox") {
-    isCheckbox.value = true;
-  } else {
-    isCheckbox.value = false;
+  emit("getListId", index, event);
+};
+
+const handleOptions = (event) => {
+  let options;
+  if (event?.target?.className === "options-container") {
+    options = event.target.lastElementChild;
+  } else if (event?.target?.className === "options-button") {
+    options = event.target.nextElementSibling;
+  } else if (event?.target?.parentElement?.className === "options") {
+    options = event.target.parentElement;
   }
-  emit("getListId", index, isCheckbox.value);
+  if (options.style.display === "none" || options.style.display === "") {
+    options.style.display = "block";
+  } else if (options.style.display === "block") {
+    options.style.display = "none";
+  }
+};
+
+const handleListDelete = (index, event) => {
+  event.stopPropagation();
+  if (event?.target?.className === "opt-delete") {
+    handleOptions(event);
+  }
+  emit("deleteList", index);
 };
 </script>
 
@@ -66,5 +109,34 @@ const handleListClick = (index, event) => {
 .list-name {
   user-select: none;
   padding-right: 0.5rem;
+  flex-grow: 1;
+}
+.options-container {
+  background-color: #efecec;
+  padding: 0rem 0.1rem 0rem 0.6rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  transform: scale(1.2);
+  position: relative;
+}
+.options-button {
+  color: #646262;
+}
+.options {
+  z-index: 10;
+  display: none;
+  position: absolute;
+  background: #e9e8e8;
+  top: 3px;
+  border-radius: 0.2rem;
+  right: 23px;
+  font-size: 0.8rem;
+}
+.options div {
+  border-bottom: 1px solid #0000002b;
+  padding: 0.5rem 3rem 0.5rem 0.5rem;
+}
+.options div:hover {
+  background-color: #dcdbdb;
 }
 </style>

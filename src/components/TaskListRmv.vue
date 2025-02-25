@@ -60,11 +60,6 @@ li span.task-title-txt {
   overflow-x: scroll;
 }
 
-li span::-webkit-scrollbar {
-  height: auto;
-  background-color: white;
-}
-
 .task-lists {
   background-color: white;
   padding: 0.8rem;
