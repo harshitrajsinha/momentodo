@@ -28,8 +28,17 @@
         @select="onSelectEmoji"
       />
     </div>
+    <textarea
+      v-model="taskNotes"
+      :style="{ marginBottom: 0 }"
+      class="task-container__elem task-container__add-notes"
+      id="task-notes"
+      placeholder="Add notes"
+      @blur="addNewTask"
+    ></textarea>
     <select
       v-model="taskPriority"
+      :style="{ borderRadius: '2rem' }"
       class="task-container__elem"
       id="task-priority"
       @change="addNewTask"
@@ -39,13 +48,6 @@
       <option value="medium">Medium</option>
       <option value="low">Low</option>
     </select>
-    <textarea
-      v-model="taskNotes"
-      class="task-container__elem task-container__add-notes"
-      id="task-notes"
-      placeholder="Add notes"
-      @blur="addNewTask"
-    ></textarea>
   </div>
 </template>
 
@@ -136,6 +138,9 @@ const toCloseTaskModal = (event) => {
     !event?.target?.classList?.contains("create-list-btn") &&
     !event?.target?.parentElement?.classList?.contains(
       "task-container__elem"
+    ) &&
+    !event?.target?.parentElement?.classList?.contains(
+      "create-todo-container"
     ) &&
     !event?.target?.parentElement?.classList?.contains("task-container") &&
     !event?.target?.parentElement?.parentElement?.classList?.contains(

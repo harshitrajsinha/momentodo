@@ -108,7 +108,6 @@ const writeNewTodo = (event) => {
   if (event.inputType === "deleteWordBackward" && event.data === null) {
     // delete last todo
     if (timerId.value !== null) {
-      console.log("clear");
       clearTimeout(timerId.value);
       timerId.value = null;
     }
