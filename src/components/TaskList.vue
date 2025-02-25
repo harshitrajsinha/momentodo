@@ -26,7 +26,7 @@
 <script setup>
 import DisplayItemList from "./DisplayItemList.vue";
 import CreateTaskList from "./CreateTaskList.vue";
-import { ref } from "vue";
+import { onUpdated, ref } from "vue";
 
 let contentEditable = ref(false);
 let isCheckbox = ref(false);

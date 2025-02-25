@@ -35,7 +35,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed } from "vue";
+import {
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  computed,
+  watch,
+  onUpdated,
+} from "vue";
 import TaskList from "./TaskList.vue";
 import TaskDetails from "./TaskDetails.vue";
 import TodoList from "./TodoList.vue";
@@ -47,46 +54,61 @@ let toShowTaskDetails = ref(false);
 let toCloseTaskDetails = ref(false);
 let listMaxWidth = ref("80%");
 let toShowSection = ref(false);
+let todoData = ref([]);
 
-let todoData = ref([
-  {
-    icon: "🏠",
-    title: "Home",
-    "task-list": [
+onMounted(() => {
+  const getTodoData = localStorage.getItem("todo-data");
+  if (getTodoData) {
+    todoData.value = JSON.parse(getTodoData);
+  } else {
+    todoData.value = [
       {
-        "is-completed": false,
-        title: "Add Sugar",
-        "task-priority": "medium",
-        notes: "testing",
+        icon: "🏠",
+        title: "Home",
+        "task-list": [
+          {
+            "is-completed": false,
+            title: "Add Sugar",
+            "task-priority": "medium",
+            notes: "testing",
+          },
+          {
+            "is-completed": false,
+            title: "Add Spices",
+            "task-priority": "medium",
+            notes: "testing",
+          },
+          {
+            "is-completed": true,
+            title: "Add Salt",
+            "task-priority": "medium",
+            notes: "testing",
+          },
+        ],
       },
       {
-        "is-completed": false,
-        title: "Add Spices",
-        "task-priority": "medium",
-        notes: "testing",
+        icon: "😎",
+        title: "Tech",
+        "task-list": [
+          {
+            "is-completed": false,
+            title: "Add Veggies",
+            "task-priority": "urgent",
+            notes: "testing",
+          },
+        ],
       },
-      {
-        "is-completed": true,
-        title: "Add Salt",
-        "task-priority": "medium",
-        notes: "testing",
-      },
-    ],
+    ];
+  }
+});
+
+watch(
+  todoData,
+  () => {
+    localStorage.setItem("todo-data", JSON.stringify(todoData.value));
   },
-  {
-    icon: "😎",
-    title: "Tech",
-    "task-list": [
-      {
-        "is-completed": false,
-        title: "Add Veggies",
-        "task-priority": "urgent",
-        notes:
-          "testing testing testing testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testingtesting testing",
-      },
-    ],
-  },
-]);
+  { deep: true }
+);
 
 const showTaskLists = (listId) => {
   toShowSection.value = true;

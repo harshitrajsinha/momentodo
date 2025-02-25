@@ -73,7 +73,7 @@ const toggleTodoListInput = () => {
 };
 
 const updateTitle = (key) => {
-  if (todoListData.value.value) {
+  if (todoData.value) {
     const list = document
       .querySelector(".left-section")
       .querySelector(`[data-key="${key}"]`);
@@ -85,7 +85,8 @@ const updateTitle = (key) => {
     });
     list.addEventListener("focusout", function () {
       list.contentEditable = "false";
-      todoListData.value.value[key]["title"] = list.textContent;
+      contentEditable.value = false;
+      todoData.value[key]["title"] = list.textContent;
     });
   }
 };
@@ -250,8 +251,3 @@ const getNewTodo = (event) => {
   z-index: 2;
 }
 </style>
-<!-- if (
-          event.relatedTarget &&
-          !event.relatedTarget.tagName === "BUTTON" &&
-          !event.relatedTarget.classList.contains("create-list-btn")
-        ) -->
