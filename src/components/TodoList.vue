@@ -7,6 +7,7 @@
       listStyles="todo-list-style"
       @getListId="handleListId"
       @getTitleKey="updateTitle"
+      @deleteList="deleteList"
       ><template #list-icon="{ icon }">
         <span class="todo-list-icon">{{ icon }}</span>
       </template>
@@ -56,9 +57,25 @@ let todoListData = defineModel("todo-list-display");
 let todoData = defineModel("todo-data");
 let lastItem = defineModel("last-todo-item");
 let toShowTodoInput = ref(false);
+let contentEditable = ref(false);
 let emit = defineEmits(["todoItem"]);
 
-const handleListId = (id) => {
+const handleListId = (id, event) => {
+  if (event?.target?.className === "options-container") {
+    return;
+  }
+  if (event?.target?.className === "options-button") {
+    return;
+  } else if (event?.target?.className === "opt-edit") {
+    return;
+  } else if (event?.target?.className === "opt-delete") {
+    return;
+  } else if (
+    event?.target?.className === "list-name" &&
+    contentEditable.value
+  ) {
+    return;
+  }
   emit("todoItem", id);
 };
 
@@ -78,9 +95,12 @@ const updateTitle = (key) => {
       .querySelector(".left-section")
       .querySelector(`[data-key="${key}"]`);
     list.contentEditable = "true";
+    contentEditable.value = true;
+    list.focus();
     list.addEventListener("keyup", function () {
       if (list.textContent.length >= 15) {
-        list.textContent = list.textContent.slice(0, 15);
+        contentEditable.value = false;
+        list.textContent = list.textContent.slice(0, 14);
       }
     });
     list.addEventListener("focusout", function () {
@@ -89,6 +109,10 @@ const updateTitle = (key) => {
       todoData.value[key]["title"] = list.textContent;
     });
   }
+};
+
+const deleteList = (id) => {
+  todoData.value.splice(id, 1);
 };
 
 const onSelectGroupEmoji = (emoji) => {

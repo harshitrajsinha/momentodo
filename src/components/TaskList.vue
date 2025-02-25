@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div v-if="!taskLists.length" :class="['task-default-txt']">
+      <div>"The secret of getting ahead is getting started."</div>
+      <div class="task-author-name">- Mark Twain</div>
+    </div>
     <DisplayItemList
       ref="displayList"
       v-model:list-model="taskLists"
@@ -19,7 +23,10 @@
         />
       </template>
     </DisplayItemList>
-    <CreateTaskList v-model:task-list-model="taskLists" />
+    <CreateTaskList
+      class="create-list-task-comp"
+      v-model:task-list-model="taskLists"
+    />
   </div>
 </template>
 
@@ -30,7 +37,6 @@ import { onUpdated, ref } from "vue";
 
 let contentEditable = ref(false);
 let isCheckbox = ref(false);
-let isOptions = ref(false);
 
 const emit = defineEmits([
   "getListId",
@@ -80,7 +86,7 @@ const updateTitle = (key) => {
     });
     list.addEventListener("focusout", function () {
       list.contentEditable = "false";
-      contentEditable.value = true;
+      contentEditable.value = false;
       taskLists.value[key]["title"] = list.textContent;
       emit("reloadTaskDetail", key);
     });
@@ -99,6 +105,25 @@ const deleteList = (id) => {
 </script>
 
 <style scoped>
+.task-default-txt {
+  color: #888585a7;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  text-align: center;
+  font-size: 2.5rem;
+  width: auto;
+  top: 50%;
+  transform: translateY(-60%);
+}
+
+.task-default-txt .task-author-name {
+  font-size: 1.5rem;
+  font-style: italic;
+}
+
 ::v-deep(div.list-container-style) {
   margin: 0 auto;
   padding: 2rem 6rem;

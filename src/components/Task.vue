@@ -147,6 +147,7 @@ const toCloseTaskModal = (event) => {
       "v3-emojis"
     )
   ) {
+    recentlyAddedList.value = false;
     emit("toShowModal");
     document.body.removeEventListener("click", toCloseTaskModal);
   }
