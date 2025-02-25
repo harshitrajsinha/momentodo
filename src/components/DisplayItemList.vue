@@ -55,14 +55,6 @@ const listTitle = ref(null);
 const listModel = defineModel("list-model");
 const emit = defineEmits(["getListId", "getTitleKey", "deleteList"]);
 
-const changeTitle = (index, event) => {
-  event.stopPropagation();
-  if (event?.target?.className === "opt-edit") {
-    handleOptions(event);
-  }
-  emit("getTitleKey", index);
-};
-
 const { listStyles, listContainerStyle } = defineProps({
   listStyles: String,
   listContainerStyle: String,
@@ -87,6 +79,14 @@ const handleOptions = (event) => {
   } else if (options.style.display === "block") {
     options.style.display = "none";
   }
+};
+
+const changeTitle = (index, event) => {
+  event.stopPropagation();
+  if (event?.target?.className === "opt-edit") {
+    handleOptions(event);
+  }
+  emit("getTitleKey", index);
 };
 
 const handleListDelete = (index, event) => {
