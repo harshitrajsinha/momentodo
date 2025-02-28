@@ -214,8 +214,8 @@ const getNewTodo = (event) => {
 
 ::v-deep(div.display-list-container) {
   overflow-y: auto;
-  max-height: calc(70vh - 2rem - 1.5rem);
-  height: calc(70vh - 2rem - 1.5rem);
+  max-height: calc(70vh - 2rem);
+  height: calc(70vh - 2rem);
 }
 
 ::v-deep(div.display-list-container)::-webkit-scrollbar {

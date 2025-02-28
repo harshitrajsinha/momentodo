@@ -100,6 +100,9 @@ const toggleEmojiPicker = () => {
 
 // Function to reset field values of create task container
 const resetTaskFields = () => {
+  if (showEmojiPicker.value) {
+    showEmojiPicker.value = false;
+  }
   taskCompleted.value = initalTaskCompleted;
   taskTitle.value = initalTaskTitle;
   taskPriority.value = initalTaskPriority;
@@ -133,6 +136,10 @@ onUnmounted(() => {
 
 // Close createTaskModal if clicked outside
 const toCloseTaskModal = (event) => {
+  if (!isModalOpen.value.classList.contains("active")) {
+    resetTaskFields();
+    return;
+  }
   if (
     !(event?.target?.nodeName === "BUTTON") &&
     !event?.target?.classList?.contains("create-list-btn") &&
@@ -143,6 +150,7 @@ const toCloseTaskModal = (event) => {
       "create-todo-container"
     ) &&
     !event?.target?.parentElement?.classList?.contains("task-container") &&
+    !event?.target?.parentElement?.classList?.contains("v3-search") &&
     !event?.target?.parentElement?.parentElement?.classList?.contains(
       "v3-emojis"
     )

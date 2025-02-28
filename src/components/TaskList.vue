@@ -125,9 +125,22 @@ const deleteList = (id) => {
 }
 
 ::v-deep(div.list-container-style) {
-  margin: 0 auto;
+  max-height: 78vh;
+  overflow-y: auto;
+  margin: 5rem auto 0;
   padding: 2rem 6rem;
 }
+
+::v-deep(div.list-container-style)::-webkit-scrollbar {
+  height: 0.5rem;
+  width: 0.6rem;
+}
+
+::v-deep(div.list-container-style)::-webkit-scrollbar-thumb {
+  border-radius: 0.5rem;
+  background-color: rgba(167, 163, 163, 0.707);
+}
+
 ::v-deep(li.task-list-style) {
   padding: 0.8rem;
   margin-bottom: 0.5rem;

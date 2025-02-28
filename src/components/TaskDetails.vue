@@ -152,9 +152,8 @@ const resetData = () => {
 };
 
 const onSelectEmoji = (emoji) => {
-  // taskTitle.value = taskTitle.value + emoji["i"];
-  // addNewTask({ target: { id: "task-input" } });
-  // showEmojiPicker.value = !showEmojiPicker.value;
+  currentTitle.value = currentTitle.value + emoji["i"];
+  showEmojiPicker.value = !showEmojiPicker.value;
 };
 
 const toggleEmojiPicker = () => {
@@ -232,7 +231,7 @@ textarea {
 }
 
 .task-details__notes {
-  min-height: 5rem;
+  min-height: 10rem;
   text-align: left;
   line-height: 1rem;
   resize: none;
