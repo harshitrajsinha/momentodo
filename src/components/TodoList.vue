@@ -152,18 +152,18 @@ const writeNewTodo = (event) => {
 };
 
 const getNewTodo = (event) => {
-  if (
-    event?.relatedTarget?.nodeName === "BUTTON" &&
-    event?.relatedTarget?.classList.contains("create-list-btn")
-  ) {
-    if (newTodo.value["title"].length) {
-      timerId = setTimeout(() => {
-        todoData.value.pop();
-        timerId = null;
-      }, 1000);
-    }
-    return;
-  }
+  // if (
+  //   event?.relatedTarget?.nodeName === "BUTTON" &&
+  //   event?.relatedTarget?.classList.contains("create-list-btn")
+  // ) {
+  //   if (newTodo.value["title"].length) {
+  //     timerId = setTimeout(() => {
+  //       todoData.value.pop();
+  //       timerId = null;
+  //     }, 1000);
+  //   }
+  //   return;
+  // }
   if (newTodo.value["title"]) {
     if (
       newTodo.value["icon"] === defaultButtonTxt &&
@@ -212,6 +212,22 @@ const getNewTodo = (event) => {
   font-weight: 700;
 }
 
+::v-deep(div.display-list-container) {
+  overflow-y: auto;
+  max-height: calc(70vh - 2rem - 1.5rem);
+  height: calc(70vh - 2rem - 1.5rem);
+}
+
+::v-deep(div.display-list-container)::-webkit-scrollbar {
+  height: 0.5rem;
+  width: 0.6rem;
+}
+
+::v-deep(div.display-list-container)::-webkit-scrollbar-thumb {
+  border-radius: 0.5rem;
+  background-color: rgba(167, 163, 163, 0.707);
+}
+
 ::v-deep(li.todo-list-style:hover) {
   background-color: #efecec;
 }
@@ -227,15 +243,15 @@ const getNewTodo = (event) => {
   display: flex;
   gap: 0.2rem;
   margin: 1rem 0;
-  position: relative;
-  bottom: -100vh;
+  width: calc(100% - 2rem);
+  position: absolute;
   max-height: 0;
+  bottom: -50%;
   transition: max-height 0.8s ease-in-out;
 }
 
 .todo-list__input.active {
-  position: relative;
-  bottom: 0;
+  bottom: 8%;
   max-height: 200px;
 }
 
@@ -257,8 +273,10 @@ const getNewTodo = (event) => {
 }
 
 ::v-deep(button.create-list-btn-style) {
-  width: -webkit-fill-available;
-  color: black;
+  position: absolute;
+  bottom: 2%;
+  width: calc(100% - 2rem);
+  color: rgb(0, 0, 0);
   background: #efecec;
   text-align: left;
   border: 1px solid rgb(96, 96, 96);
@@ -271,7 +289,7 @@ const getNewTodo = (event) => {
 
 .v3-emoji-picker {
   position: absolute;
-  top: 2.5rem;
-  z-index: 2;
+  bottom: 100%;
+  z-index: 5;
 }
 </style>
