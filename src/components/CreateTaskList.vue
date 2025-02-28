@@ -47,12 +47,14 @@ const showCreateTaskModal = () => {
 }
 
 .add-todo {
+  z-index: -1;
   position: relative;
   bottom: -100vh;
   transition: bottom 1.5s;
 }
 
 .add-todo.active {
+  z-index: 2;
   position: relative;
   bottom: 0vh;
 }
