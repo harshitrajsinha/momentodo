@@ -112,6 +112,7 @@ const handleListDelete = (index, event) => {
   flex-grow: 1;
 }
 .options-container {
+  z-index: 5;
   background-color: #efecec;
   padding: 0rem 0.1rem 0rem 0.6rem;
   border-radius: 0.4rem;
