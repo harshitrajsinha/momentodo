@@ -18,11 +18,16 @@
           ref="listTitle"
           :data-key="index"
           class="list-name"
-          @dblclick="changeTitle(index, $event)"
+          @dblclick="handleListUpdate(index, $event)"
           >{{ item["title"] }}</span
         >
         <slot name="list-count" :count="item['task-count']"></slot>
-        <div class="options-container" @click="handleOptions($event)">
+        <div
+          ref="optionsContainerElem"
+          class="options-container"
+          :data-key="index"
+          @click="handleOptions($event)"
+        >
           <div :style="{ transform: `rotate(90deg)` }" class="options-button">
             ...
           </div>
@@ -30,7 +35,7 @@
             <div
               class="opt-edit"
               :data-key="index"
-              @click="changeTitle(index, $event)"
+              @click="handleListUpdate(index, $event)"
             >
               Edit
             </div>
@@ -51,9 +56,37 @@
 <script setup>
 import { ref, defineExpose } from "vue";
 const childListComponent = ref(null);
+let optionsElem = ref({});
+let optionContainerActive = ref(false);
+const optionsContainerElem = ref(null);
 const listTitle = ref(null);
 const listModel = defineModel("list-model");
-const emit = defineEmits(["getListId", "getTitleKey", "deleteList"]);
+const emit = defineEmits({
+  "get-list-id": (index, event) => {
+    if (typeof index === "number" && typeof event === "object") {
+      return true;
+    } else {
+      console.warn("Invalid List ID");
+      return false;
+    }
+  },
+  "update-list": (index) => {
+    if (typeof index === "number") {
+      return true;
+    } else {
+      console.warn("Invalid List ID");
+      return false;
+    }
+  },
+  "delete-list": (index) => {
+    if (typeof index === "number") {
+      return true;
+    } else {
+      console.warn("Invalid List ID");
+      return false;
+    }
+  },
+});
 
 const { listStyles, listContainerStyle } = defineProps({
   listStyles: String,
@@ -62,31 +95,48 @@ const { listStyles, listContainerStyle } = defineProps({
 defineExpose({ childListComponent });
 
 const handleListClick = (index, event) => {
-  emit("getListId", index, event);
+  emit("get-list-id", index, event);
 };
 
 const handleOptions = (event) => {
-  let options;
-  if (event?.target?.className === "options-container") {
-    options = event.target.lastElementChild;
-  } else if (event?.target?.className === "options-button") {
-    options = event.target.nextElementSibling;
-  } else if (event?.target?.parentElement?.className === "options") {
-    options = event.target.parentElement;
+  let elemKey =
+    event?.target?.getAttribute("data-key") ||
+    event?.target?.parentElement?.getAttribute("data-key") ||
+    -1;
+
+  // Closes any previous active options
+  if (optionContainerActive.value) {
+    if (optionsElem.value.style.display === "block") {
+      optionsElem.value.style.display = "none";
+      optionContainerActive.value = false;
+    }
+    if (elemKey && optionsElem.value?.getAttribute("data-key") === elemKey) {
+      return;
+    }
   }
-  if (options.style.display === "none" || options.style.display === "") {
-    options.style.display = "block";
-  } else if (options.style.display === "block") {
-    options.style.display = "none";
+  if (event?.target?.className === "options-container") {
+    optionsElem.value = event.target.lastElementChild;
+  } else if (event?.target?.className === "options-button") {
+    optionsElem.value = event.target.nextElementSibling;
+  }
+  if (
+    optionsElem.value.style.display === "none" ||
+    optionsElem.value.style.display === ""
+  ) {
+    optionsElem.value.style.display = "block";
+    optionContainerActive.value = true;
+  } else if (optionsElem.value.style.display === "block") {
+    optionsElem.value.style.display = "none";
+    optionContainerActive.value = false;
   }
 };
 
-const changeTitle = (index, event) => {
+const handleListUpdate = (index, event) => {
   event.stopPropagation();
   if (event?.target?.className === "opt-edit") {
     handleOptions(event);
   }
-  emit("getTitleKey", index);
+  emit("update-list", index);
 };
 
 const handleListDelete = (index, event) => {
@@ -94,7 +144,7 @@ const handleListDelete = (index, event) => {
   if (event?.target?.className === "opt-delete") {
     handleOptions(event);
   }
-  emit("deleteList", index);
+  emit("delete-list", index);
 };
 </script>
 
@@ -108,7 +158,6 @@ const handleListDelete = (index, event) => {
 }
 .list-name {
   user-select: none;
-  padding-right: 0.5rem;
   flex-grow: 1;
 }
 .options-container {

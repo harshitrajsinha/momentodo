@@ -1,28 +1,32 @@
+<!-- 
+=== Template structure ===
+    TodoList
+    Default quote, if mid-right is inactive
+    TaskList
+    TaskDetails
+-->
 <template>
   <div class="main-container">
     <TodoList
-      v-model:todo-list-display="todoLists"
-      v-model:todo-data="todoData"
-      v-model:last-todo-item="todoData[todoData.length - 1]"
       class="left-section"
-      @todoItem="showTaskLists"
+      v-model:todo-data="todoData"
+      @todo-list-id="showTaskLists"
     />
-    <div v-if="!toShowSection" :class="['default-txt']">
+    <div v-if="!toShowMidnRightSection" :class="['default-quote']">
       <div>"A goal without a plan is just a wish."</div>
-      <div class="author-name">- Antoine de Saint-Exupéry</div>
+      <div class="default-quote__author-name">- Antoine de Saint-Exupéry</div>
     </div>
     <TaskList
-      v-if="toShowSection"
-      ref="taskListComp"
+      v-if="toShowMidnRightSection"
       v-model:task-list-data="taskLists.value"
-      :class="['mid-section']"
+      class="mid-section"
       :style="{ maxWidth: listMaxWidth }"
       @getListId="showTaskDetail"
       @reloadTaskDetail="showTaskDetail"
       @close-taskD-modal="hideTaskDetails"
     />
     <TaskDetails
-      v-if="toShowSection"
+      v-if="toShowMidnRightSection"
       ref="taskDetails"
       v-model:allTaskData="taskLists.value"
       :class="[
@@ -35,32 +39,27 @@
 </template>
 
 <script setup>
-import {
-  ref,
-  onMounted,
-  onBeforeUnmount,
-  computed,
-  watch,
-  onUpdated,
-} from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import TaskList from "./TaskList.vue";
 import TaskDetails from "./TaskDetails.vue";
 import TodoList from "./TodoList.vue";
+
+let todoData = ref([]); // Array of all todo items and their respective tasks
 let taskDetails = ref(null);
-let taskListComp = ref(null);
 let taskLists = ref([]);
-let todoLists = ref([]);
+
 let toShowTaskDetails = ref(false);
 let toCloseTaskDetails = ref(false);
 let listMaxWidth = ref("80%");
-let toShowSection = ref(false);
-let todoData = ref([]);
+let toShowMidnRightSection = ref(false);
 
+// Set todo data on mounting
 onMounted(() => {
   const getTodoData = localStorage.getItem("todo-data");
   if (getTodoData) {
     todoData.value = JSON.parse(getTodoData);
   } else {
+    // Sample data
     todoData.value = [
       {
         icon: "🏠",
@@ -70,19 +69,19 @@ onMounted(() => {
             "is-completed": false,
             title: "Add Sugar",
             "task-priority": "medium",
-            notes: "testing",
+            notes: "Add 1/2 spoon sugar",
           },
           {
             "is-completed": false,
             title: "Add Spices",
             "task-priority": "medium",
-            notes: "testing",
+            notes: "Add spices according to taste",
           },
           {
             "is-completed": true,
             title: "Add Salt",
             "task-priority": "medium",
-            notes: "testing",
+            notes: "Add salt according to taste",
           },
         ],
       },
@@ -92,9 +91,9 @@ onMounted(() => {
         "task-list": [
           {
             "is-completed": false,
-            title: "Add Veggies",
+            title: "MomenTodo",
             "task-priority": "urgent",
-            notes: "testing",
+            notes: "Use this task making application",
           },
         ],
       },
@@ -102,6 +101,7 @@ onMounted(() => {
   }
 });
 
+// update localStorage on change in todo data
 watch(
   todoData,
   () => {
@@ -111,22 +111,10 @@ watch(
 );
 
 const showTaskLists = (listId) => {
-  toShowSection.value = true;
+  toShowMidnRightSection.value = true;
   taskLists.value = computed(() => todoData.value[listId]["task-list"]);
   if (toShowTaskDetails.value === true) hideTaskDetails(false);
 };
-
-todoLists.value = computed(() =>
-  todoData.value.map((elem) => {
-    return {
-      icon: elem["icon"],
-      title: elem["title"],
-      "task-count": elem["task-list"].filter(
-        (elem) => elem["is-completed"] === false
-      ).length,
-    };
-  })
-);
 
 const showTaskDetail = (listId, isCheckbox) => {
   if (isCheckbox) {
@@ -134,7 +122,7 @@ const showTaskDetail = (listId, isCheckbox) => {
       taskLists.value.value["is-completed"] =
         !taskLists.value.value["is-completed"];
     }
-    if (toShowSection.value) {
+    if (toShowMidnRightSection.value) {
       taskDetails.value.getCurrentListData(listId);
     }
     return;
@@ -159,26 +147,30 @@ const hideTaskDetails = (data) => {
 };
 
 // functionality to save data before page reloads or tab closes
-{
-  const handleBeforeUnload = (event) => {
-    // event.preventDefault(); // Some browsers require this
-    // event.returnValue = "";
-    localStorage.setItem("harshit", "harshit");
-    console.log("Page is about to refresh or close!");
-  };
+// {
+// const handleBeforeUnload = (event) => {
+//   event.preventDefault(); // Some browsers require this
+//   console.log("Page is about to refresh or close!");
+// };
 
-  onMounted(() => {
-    window.addEventListener("beforeunload", handleBeforeUnload);
-  });
+// onMounted(() => {
+//   window.addEventListener("beforeunload", handleBeforeUnload);
+// });
 
-  onBeforeUnmount(() => {
-    window.removeEventListener("beforeunload", handleBeforeUnload);
-  });
-}
+// onBeforeUnmount(() => {
+//   window.removeEventListener("beforeunload", handleBeforeUnload);
+// });
+// }
 </script>
 
 <style scoped>
-.default-txt {
+.main-container {
+  overflow: hidden;
+  display: flex;
+  position: relative;
+}
+
+.default-quote {
   color: #888585a7;
   display: flex;
   flex-direction: column;
@@ -190,18 +182,14 @@ const hideTaskDetails = (data) => {
   width: calc(100% - 23%);
 }
 
-.default-txt .author-name {
+.default-quote__author-name {
   font-size: 1.5rem;
   font-style: italic;
 }
 
-.main-container {
-  overflow: hidden;
-  display: flex;
-  position: relative;
-}
-
 .left-section {
+  min-width: 21rem;
+  max-width: 21rem;
   width: 23%;
   height: calc(100vh - 2rem);
 }

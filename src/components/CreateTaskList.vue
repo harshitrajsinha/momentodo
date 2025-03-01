@@ -62,5 +62,6 @@ const showCreateTaskModal = () => {
 .create-task-btn-style {
   position: relative;
   width: -webkit-fill-available;
+  z-index: 5;
 }
 </style>
