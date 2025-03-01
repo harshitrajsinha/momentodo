@@ -1,5 +1,5 @@
 <template>
-  <button :class="$attrs.class" class="create-list-btn" @click="handleBtnClick">
+  <button class="create-list-btn" @click="handleBtnClick">
     <font-awesome-icon
       :style="{
         transform: `rotate(${rotation}deg)`,

@@ -1,22 +1,30 @@
+<!-- 
+=== Template structure ===
+    Heading
+    Todo lists
+    Input field + Emoji button
+    Create Todo button
+-->
+
 <template>
   <div class="todo-list-container">
-    <div class="todo-list__heading">Lists</div>
-    <!-- Pass a default icon in case icon is not present -->
-    <DisplayItemList
+    <div class="todo-list__heading">Todo List</div>
+    <DisplayListItems
       v-model:list-model="todoListData.value"
       listStyles="todo-list-style"
-      @getListId="handleListId"
-      @getTitleKey="updateTitle"
-      @deleteList="deleteList"
+      @get-list-id="emitListId"
+      @update-list="updateTitle"
+      @delete-list="deleteList"
       ><template #list-icon="{ icon }">
         <span class="todo-list-icon">{{ icon }}</span>
       </template>
       <template #list-count="{ count }">
         <div class="todo-lists__list-count">{{ count }}</div>
       </template>
-    </DisplayItemList>
-    <div :class="['todo-list__input', { active: toShowTodoInput }]">
-      <button @click="toggleTodoEmojiPicker">{{ buttonTxt }}</button
+    </DisplayListItems>
+    <div :class="['todo-list__input-container', { active: toShowTodoInput }]">
+      <!-- Emoji button -->
+      <button @click="toggleTodoEmojiPicker">{{ emojiButtonTxt }}</button
       ><EmojiPicker
         v-if="showTodoEmojiPicker"
         :display-recent="true"
@@ -26,41 +34,71 @@
       <input
         type="text"
         maxlength="15"
-        v-model="newTodo['title']"
-        @input="writeNewTodo"
-        @blur="getNewTodo"
+        v-model="newTodoItem['title']"
+        @input="writenewTodoTitle"
+        @blur="getnewTodoItem"
       />
     </div>
     <CreateListBtn
-      btnText="Create new list"
-      class="create-list-btn-style"
-      @toShowModal="toggleTodoListInput"
+      ref="createListBtn"
+      btnText="Create new todo"
+      class="create-new-todo-btn"
+      @toShowModal="toggleTodoInputField"
     />
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from "vue";
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
-import DisplayItemList from "./DisplayItemList.vue";
+import DisplayListItems from "./DisplayListItems.vue";
 import CreateListBtn from "./CreateListBtn.vue";
-import { ref } from "vue";
 
-const defaultButtonTxt = "😁";
-let buttonTxt = ref(defaultButtonTxt);
 let timerId = ref(null);
+let createListBtn = ref(null);
 let newTitle = ref(true);
-const defaultTodoObj = { icon: buttonTxt.value, title: "", "task-list": [] };
-let newTodo = ref(defaultTodoObj);
+let lastTodoItem = ref({});
+const defaultButtonTxt = "😁";
+let emojiButtonTxt = ref(defaultButtonTxt);
+const defaultTodoObj = {
+  icon: emojiButtonTxt.value,
+  title: "",
+  "task-list": [],
+};
+let newTodoItem = ref(defaultTodoObj);
 let showTodoEmojiPicker = ref(false);
-let todoListData = defineModel("todo-list-display");
+let todoListData = ref([]);
 let todoData = defineModel("todo-data");
-let lastItem = defineModel("last-todo-item");
 let toShowTodoInput = ref(false);
 let contentEditable = ref(false);
-let emit = defineEmits(["todoItem"]);
 
-const handleListId = (id, event) => {
+let emit = defineEmits({
+  "todo-list-id": (todoListId) => {
+    if (typeof todoListId === "number") {
+      return true;
+    } else {
+      console.warn("Invalid Todo List ID!");
+      return false;
+    }
+  },
+});
+
+lastTodoItem.value = computed(() => todoData[todoData.length - 1]);
+
+todoListData.value = computed(() =>
+  todoData.value.map((elem) => {
+    return {
+      icon: elem["icon"],
+      title: elem["title"],
+      "task-count": elem["task-list"].filter(
+        (elem) => elem["is-completed"] === false
+      ).length,
+    };
+  })
+);
+
+const emitListId = (todoListId, event) => {
   if (event?.target?.className === "options-container") {
     return;
   }
@@ -76,17 +114,22 @@ const handleListId = (id, event) => {
   ) {
     return;
   }
-  emit("todoItem", id);
+  emit("todo-list-id", todoListId);
 };
 
-const toggleTodoListInput = () => {
-  toShowTodoInput.value = !toShowTodoInput.value;
-  if (toShowTodoInput.value) {
-    newTodo["title"] = "";
-    newTodo.value = { icon: defaultButtonTxt, title: "", "task-list": [] };
-    buttonTxt.value = defaultButtonTxt;
-    newTitle.value = true;
+const resetTodoInputValues = () => {
+  if (showTodoEmojiPicker) {
+    showTodoEmojiPicker.value = false;
   }
+  newTodoItem["title"] = "";
+  newTodoItem.value = { icon: defaultButtonTxt, title: "", "task-list": [] };
+  emojiButtonTxt.value = defaultButtonTxt;
+  newTitle.value = true;
+};
+const toggleTodoInputField = () => {
+  createListBtn.value.rotateIcon();
+  toShowTodoInput.value = !toShowTodoInput.value;
+  if (toShowTodoInput) resetTodoInputValues();
 };
 
 const updateTitle = (key) => {
@@ -116,10 +159,10 @@ const deleteList = (id) => {
 };
 
 const onSelectGroupEmoji = (emoji) => {
-  buttonTxt.value = emoji["i"];
-  newTodo.value["icon"] = emoji["i"];
+  emojiButtonTxt.value = emoji["i"];
+  newTodoItem.value["icon"] = emoji["i"];
   showTodoEmojiPicker.value = !showTodoEmojiPicker.value;
-  getNewTodo(false);
+  getnewTodoItem();
 };
 const toggleTodoEmojiPicker = () => {
   showTodoEmojiPicker.value = !showTodoEmojiPicker.value;
@@ -129,9 +172,10 @@ const toggleTodoEmojiPicker = () => {
   }
 };
 
-const writeNewTodo = (event) => {
+// Function to insert new todo item's title
+const writenewTodoTitle = (event) => {
   if (event.inputType === "deleteWordBackward" && event.data === null) {
-    // delete last todo
+    // deleted all letters at once -> delete last todo item
     if (timerId.value !== null) {
       clearTimeout(timerId.value);
       timerId.value = null;
@@ -139,48 +183,45 @@ const writeNewTodo = (event) => {
     todoData.value.pop();
     newTitle.value = true;
   }
-  if (newTodo.value["title"]) {
-    if (newTodo.value["title"].length === 1 && newTitle.value) {
+  if (newTodoItem.value["title"]) {
+    if (newTodoItem.value["title"].length === 1 && newTitle.value) {
+      // new todo item => create
       newTitle.value = false;
-      todoData.value.push(newTodo.value);
-    } else if (newTodo.value["title"].length === 1 && !newTitle.value) {
-      lastItem.value["title"] = newTodo.value["title"];
-    } else if (newTodo.value["title"].length > 1) {
-      lastItem.value["title"] = newTodo.value["title"];
+      todoData.value.push(newTodoItem.value);
+    } else if (newTodoItem.value["title"].length === 1 && !newTitle.value) {
+      // If not new title but re-writing => update
+      lastTodoItem.value["title"] = newTodoItem.value["title"];
+    } else if (newTodoItem.value["title"].length > 1) {
+      lastTodoItem.value["title"] = newTodoItem.value["title"];
     }
   }
 };
 
-const getNewTodo = (event) => {
-  // if (
-  //   event?.relatedTarget?.nodeName === "BUTTON" &&
-  //   event?.relatedTarget?.classList.contains("create-list-btn")
-  // ) {
-  //   if (newTodo.value["title"].length) {
-  //     timerId = setTimeout(() => {
-  //       todoData.value.pop();
-  //       timerId = null;
-  //     }, 1000);
-  //   }
-  //   return;
-  // }
-  if (newTodo.value["title"]) {
+// Function to save new todo (title + icon + task-lists) on blur
+const getnewTodoItem = () => {
+  if (newTodoItem.value["title"]) {
     if (
-      newTodo.value["icon"] === defaultButtonTxt &&
+      newTodoItem.value["icon"] === defaultButtonTxt &&
       !showTodoEmojiPicker.value
     ) {
       if (!timerId.value) {
+        // 1200ms window for clicking emoji button after blur
         timerId.value = setTimeout(() => {
-          // If emoji picker is not clicked
-          lastItem.value = { ...newTodo.value };
-          toggleTodoListInput();
+          lastTodoItem.value = { ...newTodoItem.value };
+          if (toShowTodoInput.value) {
+            // Remove and reset input field
+            toggleTodoInputField();
+          } else {
+            // Reset input field
+            resetTodoInputValues();
+          }
           timerId.value = null;
-        }, 1500);
+        }, 1200);
       }
     } else {
       // If emoji picker was clicked
-      lastItem.value = { ...newTodo.value };
-      toggleTodoListInput();
+      lastTodoItem.value = { ...newTodoItem.value };
+      toggleTodoInputField();
     }
   }
 };
@@ -192,14 +233,13 @@ const getNewTodo = (event) => {
   background-color: white;
   padding: 2rem;
   padding-left: 1rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  margin-left: 1rem;
+  margin: 1rem 0 1rem 1rem;
   border-radius: 0.5rem;
 }
 
 .todo-list__heading {
-  font-size: 1.8rem;
+  font-size: 2rem;
+  font-weight: 600;
   padding-left: 0.5rem;
   margin-bottom: 1.5rem;
 }
@@ -214,6 +254,7 @@ const getNewTodo = (event) => {
 
 ::v-deep(div.display-list-container) {
   overflow-y: auto;
+  overflow-x: hidden;
   max-height: calc(70vh - 2rem);
   height: calc(70vh - 2rem);
 }
@@ -239,7 +280,7 @@ const getNewTodo = (event) => {
   margin-left: auto;
 }
 
-.todo-list__input {
+.todo-list__input-container {
   display: flex;
   gap: 0.2rem;
   margin: 1rem 0;
@@ -250,12 +291,12 @@ const getNewTodo = (event) => {
   transition: max-height 0.8s ease-in-out;
 }
 
-.todo-list__input.active {
+.todo-list__input-container.active {
   bottom: 8%;
   max-height: 200px;
 }
 
-.todo-list__input button {
+.todo-list__input-container button {
   border-radius: 0.5rem;
   border: 1px solid black;
   width: 2rem;
@@ -263,7 +304,7 @@ const getNewTodo = (event) => {
   cursor: pointer;
 }
 
-.todo-list__input input {
+.todo-list__input-container input {
   border-radius: 0.5rem;
   padding: 0.5rem;
   background-color: #efecec;
@@ -272,7 +313,7 @@ const getNewTodo = (event) => {
   outline: none;
 }
 
-::v-deep(button.create-list-btn-style) {
+::v-deep(button.create-new-todo-btn) {
   position: absolute;
   bottom: 2%;
   width: calc(100% - 2rem);

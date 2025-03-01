@@ -4,14 +4,14 @@
       <div>"The secret of getting ahead is getting started."</div>
       <div class="task-author-name">- Mark Twain</div>
     </div>
-    <DisplayItemList
+    <DisplayListItems
       ref="displayList"
       v-model:list-model="taskLists"
       listStyles="task-list-style"
       listContainerStyle="list-container-style"
-      @getListId="getClickedListId"
-      @getTitleKey="updateTitle"
-      @deleteList="deleteList"
+      @get-list-id="getClickedListId"
+      @update-list="updateTitle"
+      @delete-list="deleteList"
     >
       <!-- slot component -->
       <template #list-checkbox="{ completionStatus, indexVal }">
@@ -22,7 +22,7 @@
           @click="toggleCheckbox(indexVal)"
         />
       </template>
-    </DisplayItemList>
+    </DisplayListItems>
     <CreateTaskList
       class="create-list-task-comp"
       v-model:task-list-model="taskLists"
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import DisplayItemList from "./DisplayItemList.vue";
+import DisplayListItems from "./DisplayListItems.vue";
 import CreateTaskList from "./CreateTaskList.vue";
 import { onUpdated, ref } from "vue";
 

@@ -264,6 +264,8 @@ textarea {
 }
 
 .create-task__emoji-btn {
+  background-color: #cbc9c9;
+  border-radius: 0.2rem;
   border: none;
   transform: scale(1.5);
   cursor: pointer;
