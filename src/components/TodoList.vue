@@ -7,7 +7,7 @@
 -->
 
 <template>
-  <div class="todo-list-container">
+  <div :class="['todo-list-container', { active: mobileResponsive }]">
     <div class="todo-list__heading">Todo List</div>
     <DisplayListItems
       ref="todoListItems"
@@ -56,6 +56,7 @@ import "vue3-emoji-picker/css";
 import DisplayListItems from "./DisplayListItems.vue";
 import CreateListBtn from "./CreateListBtn.vue";
 
+let mobileResponsive = ref(false);
 let todoListItems = ref(null);
 let activeEditableTodo = ref(null);
 let timerId = ref(null);
@@ -129,6 +130,11 @@ const emitListId = (todoListId, event) => {
     list.style.border = "none"; // reset all borders
   });
   todoListItems.value.lists[todoListId].style.border = "1px solid black";
+
+  if (document.body.offsetWidth <= 500) {
+    mobileResponsive.value = true;
+  }
+
   emit("todo-list-id", todoListId);
 };
 
@@ -363,5 +369,18 @@ onUnmounted(() => {
   position: absolute;
   bottom: 100%;
   z-index: 5;
+}
+
+@media screen and (min-width: 541px) and (max-width: 1024px) {
+  .todo-list-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media screen and (max-width: 540px) {
+  .todo-list-container {
+    margin: 0;
+  }
 }
 </style>

@@ -207,22 +207,6 @@ textarea {
   resize: none;
 }
 
-@keyframes blink {
-  0% {
-    transform: scale(1.5);
-  }
-  50% {
-    transform: scale(2);
-  }
-  100% {
-    transform: scale(1.5);
-  }
-}
-
-/* .task-details__right-caret:hover {
-  animation: blink 2s infinite;
-} */
-
 .task-details__right-caret {
   color: #575757;
   transform: scale(2);
@@ -286,5 +270,30 @@ textarea {
 .save-btn:active,
 .reset-btn:active {
   animation: swipe 0.5s ease;
+}
+
+@media screen and (min-width: 541px) and (max-width: 1024px) {
+  .task-details-container {
+    padding: 2rem 1rem;
+  }
+}
+
+@media screen and (max-width: 540px) {
+  .task-details-container {
+    margin: 0;
+  }
+
+  .task-tags {
+    justify-content: end;
+  }
+
+  .task-details__right-caret {
+    left: 2%;
+    top: 4%;
+  }
+
+  .v3-emoji-picker {
+    right: 0;
+  }
 }
 </style>

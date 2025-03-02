@@ -8,7 +8,7 @@
 <template>
   <div class="main-container">
     <TodoList
-      class="left-section"
+      :class="['left-section', { hide: hideLSForMobile }]"
       v-model:todo-data="todoData"
       @todo-list-id="showTaskLists"
       @delete-todo-item="deleteTodoItem"
@@ -21,7 +21,7 @@
       ref="taskListComponent"
       v-if="toShowMidnRightSection"
       v-model:task-list-data="taskLists.value"
-      class="mid-section"
+      :class="['mid-section', { hide: hideMSForMobile }]"
       :style="{ maxWidth: listMaxWidth }"
       @get-list-id="showTaskDetail"
       @reload-task-details="showTaskDetail"
@@ -34,6 +34,7 @@
       :class="[
         'right-section',
         { active: toShowTaskDetails, inactive: toCloseTaskDetails },
+        { hide: hideRSForMobile },
       ]"
       @close-task-details="hideTaskDetails"
     />
@@ -46,6 +47,10 @@ import TaskList from "./TaskList.vue";
 import TaskDetails from "./TaskDetails.vue";
 import TodoList from "./TodoList.vue";
 
+let bodyWidth = ref(0);
+let hideLSForMobile = ref(false); // hide left section
+let hideMSForMobile = ref(false); // hide mid section
+let hideRSForMobile = ref(false); // hide right section
 let todoData = ref([]); // Array of all todo items and their respective tasks
 let taskListComponent = ref(null);
 let taskDetails = ref(null);
@@ -57,6 +62,7 @@ let toShowMidnRightSection = ref(false);
 
 // Set todo data on mounting
 onMounted(() => {
+  bodyWidth.value = document.body.offsetWidth;
   const getTodoData = localStorage.getItem("todo-data");
   if (getTodoData) {
     todoData.value = JSON.parse(getTodoData);
@@ -125,6 +131,11 @@ const showTaskLists = (listId) => {
   }
   toShowMidnRightSection.value = true;
   taskLists.value = computed(() => todoData.value[listId]["task-list"]);
+  if (bodyWidth.value <= 540) {
+    hideLSForMobile.value = true;
+    hideMSForMobile.value = false;
+    hideRSForMobile.value = true;
+  }
   // close any active task details
   if (toShowTaskDetails.value === true) hideTaskDetails(true);
 };
@@ -145,11 +156,16 @@ const showTaskDetail = (taskItemtId, isCheckbox) => {
     return;
   }
   if (taskDetails.value) {
+    if (bodyWidth.value <= 540) {
+      hideLSForMobile.value = true;
+      hideMSForMobile.value = true;
+      hideRSForMobile.value = false;
+    }
     taskDetails.value.getActiveTaskItemData(taskItemtId);
     toCloseTaskDetails.value = false;
     toShowTaskDetails.value = true;
     listMaxWidth.value = "50%";
-    if (taskListComponent.value) {
+    if (taskListComponent.value && bodyWidth.value > 540) {
       taskListComponent.value.createTaskListComp.createTaskContainer.style.transform =
         "translateX(-50%)";
     }
@@ -162,10 +178,15 @@ const hideTaskDetails = (toHide) => {
     return;
   }
   if (toHide) {
+    if (bodyWidth.value <= 540) {
+      hideLSForMobile.value = true;
+      hideMSForMobile.value = false;
+      hideRSForMobile.value = true;
+    }
     toShowTaskDetails.value = false;
     toCloseTaskDetails.value = true;
     listMaxWidth.value = "80%";
-    if (taskListComponent.value) {
+    if (taskListComponent.value && bodyWidth.value > 540) {
       taskListComponent.value.createTaskListComp.createTaskContainer.style.transform =
         "translateX(0%)";
     }
@@ -265,6 +286,7 @@ const hideTaskDetails = (toHide) => {
   width: 0%;
   right: -50vw;
   position: relative;
+  height: calc(100vh - 2rem);
 }
 
 .right-section.inactive {
@@ -282,5 +304,68 @@ const hideTaskDetails = (toHide) => {
   margin-right: 1rem;
   border-radius: 0.5rem;
   animation: openTaskDetails 3s ease;
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1300px) {
+  .right-section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media screen and (min-width: 541px) and (max-width: 1024px) {
+  .left-section {
+    min-width: 18rem;
+  }
+}
+
+@media screen and (max-width: 540px) {
+  .left-section {
+    min-width: 100vw;
+    max-width: 100vw;
+    min-height: 100vh;
+    max-height: 100vh;
+  }
+  .mid-section {
+    min-width: 100vw;
+    max-width: 100vw;
+    min-height: 100vh;
+    max-height: 100vh;
+  }
+  .right-section {
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+    min-width: 100vw;
+    min-height: 100vh;
+  }
+
+  @keyframes slide {
+    0% {
+      transform: translateX(0vw);
+      display: block;
+      z-index: 2;
+    }
+    100% {
+      transform: translateX(-150vw);
+      z-index: -1;
+      display: none;
+    }
+  }
+
+  .left-section.hide {
+    animation: slide 1.5s ease-out;
+    transform: translateX(-150vw);
+    display: none;
+  }
+  .mid-section.hide {
+    animation: slide 1.5s ease-out;
+    transform: translateX(-150vw);
+    display: none;
+  }
+  .right-section.hide {
+    transform: translateX(-150vw);
+    display: none;
+  }
 }
 </style>

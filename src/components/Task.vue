@@ -243,4 +243,12 @@ textarea {
   right: -17rem;
   top: 1rem;
 }
+
+@media screen and (max-width: 540px) {
+  .v3-emoji-picker {
+    position: absolute;
+    right: 0;
+    top: -3remrem;
+  }
+}
 </style>
