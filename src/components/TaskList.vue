@@ -24,7 +24,7 @@
       </template>
     </DisplayListItems>
     <CreateTaskList
-      class="create-list-task-comp"
+      ref="createTaskListComp"
       v-model:task-list-model="taskLists"
     />
   </div>
@@ -33,8 +33,9 @@
 <script setup>
 import DisplayListItems from "./DisplayListItems.vue";
 import CreateTaskList from "./CreateTaskList.vue";
-import { ref, onUnmounted } from "vue";
+import { ref, onUnmounted, defineExpose } from "vue";
 
+let createTaskListComp = ref(null);
 let activeEditableTask = ref(null);
 let contentEditable = ref(false);
 let isCheckbox = ref(false);
@@ -45,6 +46,7 @@ const emit = defineEmits([
   "close-task-details",
 ]);
 let taskLists = defineModel("task-list-data");
+defineExpose({ taskListItems, createTaskListComp });
 
 const getClickedListId = (id, event) => {
   if (event?.target?.type === "checkbox") {
@@ -67,6 +69,10 @@ const getClickedListId = (id, event) => {
   ) {
     return;
   }
+  taskListItems.value.lists.forEach((list) => {
+    list.style.border = "none"; // reset all borders
+  });
+  taskListItems.value.lists[id].style.border = "1px solid black";
   isCheckbox.value = false;
   emit("get-list-id", id, isCheckbox.value);
 };

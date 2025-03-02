@@ -125,6 +125,10 @@ const emitListId = (todoListId, event) => {
   ) {
     return;
   }
+  todoListItems.value.lists.forEach((list) => {
+    list.style.border = "none"; // reset all borders
+  });
+  todoListItems.value.lists[todoListId].style.border = "1px solid black";
   emit("todo-list-id", todoListId);
 };
 
