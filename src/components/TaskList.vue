@@ -46,6 +46,7 @@ const emit = defineEmits([
   "close-task-details",
 ]);
 let taskLists = defineModel("task-list-data");
+
 defineExpose({ taskListItems, createTaskListComp });
 
 const getClickedListId = (id, event) => {
@@ -179,5 +180,32 @@ onUnmounted(() => {
 
 ::v-deep(li.task-list-style input[type="checkbox"]:checked) ~ .list-name {
   text-decoration: line-through;
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1300px) {
+  ::v-deep(div.list-container-style) {
+    padding: 2rem 4rem;
+  }
+}
+
+@media screen and (min-width: 541px) and (max-width: 1024px) {
+  ::v-deep(div.list-container-style) {
+    padding: 2rem 2rem;
+  }
+}
+
+@media screen and (max-width: 540px) {
+  .task-section__default-txt {
+    font-size: 1.5rem;
+  }
+
+  .task-section__author-name {
+    font-size: 1rem;
+  }
+
+  ::v-deep(div.list-container-style) {
+    margin: 0;
+    padding: 1rem 1rem;
+  }
 }
 </style>

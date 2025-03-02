@@ -54,7 +54,7 @@ const showCreateTaskModal = () => {
   transition: bottom 1.5s;
 }
 
-.add-task.active {
+.task-todo.active {
   z-index: 2;
   position: relative;
   bottom: 0vh;
@@ -64,5 +64,20 @@ const showCreateTaskModal = () => {
   position: relative;
   width: -webkit-fill-available;
   z-index: 5;
+}
+
+@media screen and (min-width: 541px) and (max-width: 1024px) {
+  .create-task-container {
+    position: absolute;
+    transform: translateX(-50%) !important;
+  }
+}
+
+@media screen and (max-width: 540px) {
+  .create-task-container {
+    width: 80vw;
+    max-width: 80vw;
+    transform: translateX(-50%);
+  }
 }
 </style>
