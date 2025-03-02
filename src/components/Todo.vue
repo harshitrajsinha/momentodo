@@ -18,6 +18,7 @@
       <div class="default-quote__author-name">- Antoine de Saint-Exupéry</div>
     </div>
     <TaskList
+      ref="taskListComponent"
       v-if="toShowMidnRightSection"
       v-model:task-list-data="taskLists.value"
       class="mid-section"
@@ -46,6 +47,7 @@ import TaskDetails from "./TaskDetails.vue";
 import TodoList from "./TodoList.vue";
 
 let todoData = ref([]); // Array of all todo items and their respective tasks
+let taskListComponent = ref(null);
 let taskDetails = ref(null);
 let taskLists = ref([]);
 let toShowTaskDetails = ref(false);
@@ -116,6 +118,11 @@ const deleteTodoItem = (listId) => {
 };
 
 const showTaskLists = (listId) => {
+  if (taskListComponent.value) {
+    taskListComponent.value.taskListItems.lists.forEach((list) => {
+      list.style.border = "none"; // reset all task list borders
+    });
+  }
   toShowMidnRightSection.value = true;
   taskLists.value = computed(() => todoData.value[listId]["task-list"]);
   // close any active task details
@@ -142,6 +149,10 @@ const showTaskDetail = (taskItemtId, isCheckbox) => {
     toCloseTaskDetails.value = false;
     toShowTaskDetails.value = true;
     listMaxWidth.value = "50%";
+    if (taskListComponent.value) {
+      taskListComponent.value.createTaskListComp.createTaskContainer.style.transform =
+        "translateX(-50%)";
+    }
   }
 };
 
@@ -154,6 +165,10 @@ const hideTaskDetails = (toHide) => {
     toShowTaskDetails.value = false;
     toCloseTaskDetails.value = true;
     listMaxWidth.value = "80%";
+    if (taskListComponent.value) {
+      taskListComponent.value.createTaskListComp.createTaskContainer.style.transform =
+        "translateX(0%)";
+    }
   }
 };
 

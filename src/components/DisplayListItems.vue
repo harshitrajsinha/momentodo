@@ -2,6 +2,7 @@
   <div class="display-list-container" :class="listContainerStyle">
     <ul ref="childListComponent">
       <li
+        ref="lists"
         v-for="(item, index) in listModel"
         :key="index"
         class="displayList-style"
@@ -146,7 +147,7 @@ const handleListDelete = (index, event) => {
   emit("delete-list", index);
 };
 
-defineExpose({ listTitle });
+defineExpose({ listTitle, lists });
 </script>
 
 <style scoped>
