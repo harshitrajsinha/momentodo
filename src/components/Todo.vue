@@ -28,12 +28,12 @@
     <TaskDetails
       v-if="toShowMidnRightSection"
       ref="taskDetails"
-      v-model:allTaskData="taskLists.value"
+      v-model:all-task-data="taskLists.value"
       :class="[
         'right-section',
         { active: toShowTaskDetails, inactive: toCloseTaskDetails },
       ]"
-      @close-modal="hideTaskDetails"
+      @close-task-details="hideTaskDetails"
     />
   </div>
 </template>
@@ -47,7 +47,6 @@ import TodoList from "./TodoList.vue";
 let todoData = ref([]); // Array of all todo items and their respective tasks
 let taskDetails = ref(null);
 let taskLists = ref([]);
-
 let toShowTaskDetails = ref(false);
 let toCloseTaskDetails = ref(false);
 let listMaxWidth = ref("80%");
@@ -113,33 +112,39 @@ watch(
 const showTaskLists = (listId) => {
   toShowMidnRightSection.value = true;
   taskLists.value = computed(() => todoData.value[listId]["task-list"]);
-  if (toShowTaskDetails.value === true) hideTaskDetails(false);
+  // close any active task details
+  if (toShowTaskDetails.value === true) hideTaskDetails(true);
 };
 
-const showTaskDetail = (listId, isCheckbox) => {
+// update task list checkbox value
+const updateTaskListCheckbox = () => {
+  if (taskLists.value.value) {
+    taskLists.value.value["is-completed"] =
+      !taskLists.value.value["is-completed"];
+  }
+};
+
+// Executes when any task list is clicked
+const showTaskDetail = (taskItemtId, isCheckbox) => {
   if (isCheckbox) {
-    if (taskLists.value.value) {
-      taskLists.value.value["is-completed"] =
-        !taskLists.value.value["is-completed"];
-    }
-    if (toShowMidnRightSection.value) {
-      taskDetails.value.getCurrentListData(listId);
-    }
+    updateTaskListCheckbox();
+    taskDetails.value.getActiveTaskItemData(taskItemtId);
     return;
   }
   if (taskDetails.value) {
-    taskDetails.value.getCurrentListData(listId);
+    taskDetails.value.getActiveTaskItemData(taskItemtId);
     toCloseTaskDetails.value = false;
     toShowTaskDetails.value = true;
     listMaxWidth.value = "50%";
   }
 };
 
-const hideTaskDetails = (data) => {
+// Executes when close button of task detail is clicked
+const hideTaskDetails = (toHide) => {
   if (!toShowTaskDetails.value) {
     return;
   }
-  if (data === false) {
+  if (toHide) {
     toShowTaskDetails.value = false;
     toCloseTaskDetails.value = true;
     listMaxWidth.value = "80%";

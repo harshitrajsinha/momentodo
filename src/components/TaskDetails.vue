@@ -34,7 +34,7 @@
     <font-awesome-icon
       class="task-details__right-caret"
       :icon="['fas', 'square-caret-right']"
-      @click="closeModal"
+      @click="closeTaskDetailSection"
     />
     <label
       >Title
@@ -78,18 +78,8 @@
       ></textarea>
     </label>
     <div class="task-details__set-btn">
-      <button
-        :class="['save-btn', { active: animateSaveBgClr }]"
-        @click="saveData"
-      >
-        Save
-      </button>
-      <button
-        :class="['reset-btn', { active: animateResetBgClr }]"
-        @click="resetData"
-      >
-        Reset
-      </button>
+      <button class="save-btn" @click="saveTaskDetailsData">Save</button>
+      <button class="reset-btn" @click="resetTaskDetailsData">Reset</button>
     </div>
   </div>
 </template>
@@ -100,51 +90,33 @@ import "vue3-emoji-picker/css";
 import { ref, defineEmits } from "vue";
 
 let showEmojiPicker = ref(false);
-let currentListId = ref(-1);
-let currentTitle = ref("");
-let currentPriority = ref("");
-let currentNotes = ref("");
-let currentCompletionStatus = ref(false);
-let initalTaskData = ref({});
-let allData = defineModel("allTaskData");
-let animateSaveBgClr = ref(false);
-let animateResetBgClr = ref(false);
-let timerId = ref(null);
+let activeTaskItemId = ref(-1); // stores active task list id
+let currentTitle = ref(""); // stores updated task title
+let currentPriority = ref(""); // stores updated task priority
+let currentNotes = ref(""); // stores updated task notes
+let currentCompletionStatus = ref(false); // stores updated task status
+let initalTaskData = ref({}); // stores initial task data
+let allData = defineModel("all-task-data");
+const emit = defineEmits(["close-modal"]);
 
-const getCurrentListData = (data) => {
-  currentListId.value = data;
-  initalTaskData.value = allData.value[data];
-  currentTitle.value = allData.value[data]["title"];
-  currentPriority.value = allData.value[data]["task-priority"];
-  currentNotes.value = allData.value[data]["notes"];
-  currentCompletionStatus.value = allData.value[data]["is-completed"];
+const getActiveTaskItemData = (taskItemtId) => {
+  activeTaskItemId.value = taskItemtId;
+  initalTaskData.value = allData.value[taskItemtId];
+  // initialize with intial values
+  currentTitle.value = initalTaskData.value["title"];
+  currentPriority.value = initalTaskData.value["task-priority"];
+  currentNotes.value = initalTaskData.value["notes"];
+  currentCompletionStatus.value = initalTaskData.value["is-completed"];
 };
 
-const saveData = () => {
-  if (!animateSaveBgClr.value) {
-    animateSaveBgClr.value = true;
-    if (!timerId.value) {
-      timerId.value = setTimeout(() => {
-        animateSaveBgClr.value = false;
-        timerId.value = null;
-      }, 600);
-    }
-  }
-  allData.value[currentListId.value]["title"] = currentTitle.value;
-  allData.value[currentListId.value]["task-priority"] = currentPriority.value;
-  allData.value[currentListId.value]["notes"] = currentNotes.value;
+const saveTaskDetailsData = () => {
+  allData.value[activeTaskItemId.value]["title"] = currentTitle.value;
+  allData.value[activeTaskItemId.value]["task-priority"] =
+    currentPriority.value;
+  allData.value[activeTaskItemId.value]["notes"] = currentNotes.value;
 };
 
-const resetData = () => {
-  if (!animateResetBgClr.value) {
-    animateResetBgClr.value = true;
-    if (!timerId.value) {
-      timerId.value = setTimeout(() => {
-        animateResetBgClr.value = false;
-        timerId.value = null;
-      }, 600);
-    }
-  }
+const resetTaskDetailsData = () => {
   currentTitle.value = initalTaskData.value["title"];
   currentPriority.value = initalTaskData.value["task-priority"];
   currentNotes.value = initalTaskData.value["notes"];
@@ -160,13 +132,11 @@ const toggleEmojiPicker = () => {
   showEmojiPicker.value = !showEmojiPicker.value;
 };
 
-const emit = defineEmits(["close-modal"]);
-
-const closeModal = () => {
-  emit("close-modal", false);
+const closeTaskDetailSection = () => {
+  emit("close-task-details", true);
 };
 
-defineExpose({ getCurrentListData });
+defineExpose({ getActiveTaskItemData });
 </script>
 
 <style scoped>
@@ -308,8 +278,13 @@ textarea {
   }
 }
 
-.save-btn.active,
-.reset-btn.active {
+.save-btn:hover,
+.reset-btn:hover {
+  opacity: 0.85;
+}
+
+.save-btn:active,
+.reset-btn:active {
   animation: swipe 0.5s ease;
 }
 </style>
