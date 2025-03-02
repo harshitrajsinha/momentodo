@@ -39,7 +39,7 @@
     <select
       v-model="taskPriority"
       :style="{ borderRadius: '2rem' }"
-      class="task-container__elem"
+      class="task-container__elem task-container__priority"
       id="task-priority"
       @change="addNewTask"
     >

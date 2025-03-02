@@ -253,6 +253,8 @@ const hideTaskDetails = (toHide) => {
 }
 
 .mid-section {
+  margin: 1rem 0.5rem;
+  border-radius: 0.5rem;
   position: relative;
   flex-grow: 1;
   animation: showTaskLists 1.5s ease;
@@ -331,6 +333,7 @@ const hideTaskDetails = (toHide) => {
     max-width: 100vw;
     min-height: 100vh;
     max-height: 100vh;
+    margin: 0;
   }
   .right-section {
     right: 0;

@@ -1,0 +1,46 @@
+.light-theme {
+  --body-bg: #efecec;
+  --text-color: black;
+  --primary-bg: white;
+  --mid-section-bg: #efecec;
+  --secondary-bg: #efecec;
+  --todo-list: white;
+  --todo-list-hover: #efecec;
+  --list-count: #e1e1e1;
+  --options-cotainer: #efecec;
+  --task-list: white;
+  --task-list-hover: none;
+  --create-todo-btn: #efecec;
+  --create-task-btn: black;
+  --task-todo-active: white;
+  --task-todo-create-task: ##efecec;
+  --task-todo-notes: ##efecec;
+  --task-todo-priority: ##efecec;
+  --task-details-title: ##efecec;
+  --task-details-priority: ##efecec;
+  --task-details-notes: ##efecec;
+}
+
+.dark-theme {
+  --body-bg: black;
+  --text-color: white;
+  --primary-bg: #252424;
+  --mid-section-bg: #171717;
+  --secondary-bg: #474545;
+  --todo-list: #252424;
+  --todo-list-active: #474545;
+  --todo-list-hover: none;
+  --list-count: #817f7f;
+  --options-cotainer: #817f7f;
+  --task-list: #252424;
+  --task-list-hover: none;
+  --create-todo-btn: #474545;
+  --create-task-btn: #474545;
+  --task-todo-active: black;
+  --task-todo-create-task: #474545;
+  --task-todo-notes: #474545;
+  --task-todo-priority: #474545;
+  --task-details-title: #474545;
+  --task-details-priority: #474545;
+  --task-details-notes: #474545;
+}
