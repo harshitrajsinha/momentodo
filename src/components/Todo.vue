@@ -11,6 +11,7 @@
       class="left-section"
       v-model:todo-data="todoData"
       @todo-list-id="showTaskLists"
+      @delete-todo-item="deleteTodoItem"
     />
     <div v-if="!toShowMidnRightSection" :class="['default-quote']">
       <div>"A goal without a plan is just a wish."</div>
@@ -21,9 +22,9 @@
       v-model:task-list-data="taskLists.value"
       class="mid-section"
       :style="{ maxWidth: listMaxWidth }"
-      @getListId="showTaskDetail"
-      @reloadTaskDetail="showTaskDetail"
-      @close-taskD-modal="hideTaskDetails"
+      @get-list-id="showTaskDetail"
+      @reload-task-details="showTaskDetail"
+      @close-task-details="hideTaskDetails"
     />
     <TaskDetails
       v-if="toShowMidnRightSection"
@@ -108,6 +109,11 @@ watch(
   },
   { deep: true }
 );
+
+const deleteTodoItem = (listId) => {
+  toShowMidnRightSection.value = false;
+  todoData.value.splice(listId, 1);
+};
 
 const showTaskLists = (listId) => {
   toShowMidnRightSection.value = true;

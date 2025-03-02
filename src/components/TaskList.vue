@@ -1,17 +1,17 @@
 <template>
   <div>
-    <div v-if="!taskLists.length" :class="['task-default-txt']">
+    <div v-if="!taskLists.length" :class="['task-section__default-txt']">
       <div>"The secret of getting ahead is getting started."</div>
-      <div class="task-author-name">- Mark Twain</div>
+      <div class="task-section__author-name">- Mark Twain</div>
     </div>
     <DisplayListItems
-      ref="displayList"
+      ref="taskListItems"
       v-model:list-model="taskLists"
       listStyles="task-list-style"
       listContainerStyle="list-container-style"
       @get-list-id="getClickedListId"
-      @update-list="updateTitle"
-      @delete-list="deleteList"
+      @update-list="updateTaskItemTitle"
+      @delete-list="deleteTaskItem"
     >
       <!-- slot component -->
       <template #list-checkbox="{ completionStatus, indexVal }">
@@ -33,22 +33,23 @@
 <script setup>
 import DisplayListItems from "./DisplayListItems.vue";
 import CreateTaskList from "./CreateTaskList.vue";
-import { onUpdated, ref } from "vue";
+import { ref, onUnmounted } from "vue";
 
+let activeEditableTask = ref(null);
 let contentEditable = ref(false);
 let isCheckbox = ref(false);
-
+let taskListItems = ref(null);
 const emit = defineEmits([
-  "getListId",
-  "reloadTaskDetail",
-  "close-taskD-modal",
+  "get-list-id",
+  "reload-task-details",
+  "close-task-details",
 ]);
 let taskLists = defineModel("task-list-data");
 
 const getClickedListId = (id, event) => {
   if (event?.target?.type === "checkbox") {
     isCheckbox.value = true;
-    emit("getListId", id, isCheckbox.value);
+    emit("get-list-id", id, isCheckbox.value);
     return;
   }
   if (event?.target?.className === "options-container") {
@@ -67,29 +68,35 @@ const getClickedListId = (id, event) => {
     return;
   }
   isCheckbox.value = false;
-  emit("getListId", id, isCheckbox.value);
+  emit("get-list-id", id, isCheckbox.value);
 };
 
-const updateTitle = (key) => {
-  if (taskLists.value) {
-    const list = document
-      .querySelector(".mid-section")
-      .querySelector(`[data-key="${key}"]`);
-    list.contentEditable = "true";
+const restrictTaskTitleLength = (list) => {
+  if (list.textContent.length >= 50) {
+    contentEditable.value = false;
+    list.textContent = list.textContent.slice(0, 49);
+  }
+};
+
+const saveTaskTitle = (list, key) => {
+  list.contentEditable = "false";
+  contentEditable.value = false;
+  taskLists.value[key]["title"] = list.textContent;
+  emit("reload-task-details", key);
+};
+
+const updateTaskItemTitle = (key) => {
+  if (taskListItems.value) {
+    activeEditableTask.value = taskListItems.value.listTitle[key];
+    activeEditableTask.value.contentEditable = "true";
     contentEditable.value = true;
-    list.focus();
-    list.addEventListener("keyup", function () {
-      if (list.textContent.length >= 50) {
-        contentEditable.value = false;
-        list.textContent = list.textContent.slice(0, 49);
-      }
-    });
-    list.addEventListener("focusout", function () {
-      list.contentEditable = "false";
-      contentEditable.value = false;
-      taskLists.value[key]["title"] = list.textContent;
-      emit("reloadTaskDetail", key);
-    });
+    activeEditableTask.value.focus();
+    activeEditableTask.value.addEventListener("keyup", () =>
+      restrictTaskTitleLength(activeEditableTask.value)
+    );
+    activeEditableTask.value.addEventListener("focusout", () =>
+      saveTaskTitle(activeEditableTask.value, key)
+    );
   }
 };
 
@@ -98,14 +105,24 @@ const toggleCheckbox = (id) => {
   taskLists.value[id]["is-completed"] = !isCompleted;
 };
 
-const deleteList = (id) => {
+const deleteTaskItem = (id) => {
   taskLists.value.splice(id, 1);
-  emit("close-taskD-modal", false);
+  emit("close-task-details", true);
 };
+
+onUnmounted(() => {
+  if (activeEditableTask.value) {
+    activeEditableTask.value.removeEventListener(
+      "keyup",
+      restrictTaskTitleLength
+    );
+    activeEditableTask.value.removeEventListener("focusout", saveTaskTitle);
+  }
+});
 </script>
 
 <style scoped>
-.task-default-txt {
+.task-section__default-txt {
   color: #888585a7;
   display: flex;
   flex-direction: column;
@@ -119,7 +136,7 @@ const deleteList = (id) => {
   transform: translateY(-60%);
 }
 
-.task-default-txt .task-author-name {
+.task-section__author-name {
   font-size: 1.5rem;
   font-style: italic;
 }

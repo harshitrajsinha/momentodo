@@ -54,7 +54,8 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, defineExpose } from "vue";
+let lists = ref(null);
 let optionsElem = ref({});
 let optionContainerActive = ref(false);
 const optionsContainerElem = ref(null);
@@ -144,6 +145,8 @@ const handleListDelete = (index, event) => {
   }
   emit("delete-list", index);
 };
+
+defineExpose({ listTitle });
 </script>
 
 <style scoped>
