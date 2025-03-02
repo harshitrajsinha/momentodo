@@ -10,11 +10,12 @@
   <div class="todo-list-container">
     <div class="todo-list__heading">Todo List</div>
     <DisplayListItems
+      ref="todoListItems"
       v-model:list-model="todoListData.value"
       listStyles="todo-list-style"
       @get-list-id="emitListId"
-      @update-list="updateTitle"
-      @delete-list="deleteList"
+      @update-list="updateTodoItemTitle"
+      @delete-list="deleteTodoItem"
       ><template #list-icon="{ icon }">
         <span class="todo-list-icon">{{ icon }}</span>
       </template>
@@ -49,12 +50,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onUnmounted } from "vue";
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
 import DisplayListItems from "./DisplayListItems.vue";
 import CreateListBtn from "./CreateListBtn.vue";
 
+let todoListItems = ref(null);
+let activeEditableTodo = ref(null);
 let timerId = ref(null);
 let createListBtn = ref(null);
 let newTitle = ref(true);
@@ -79,6 +82,14 @@ let emit = defineEmits({
       return true;
     } else {
       console.warn("Invalid Todo List ID!");
+      return false;
+    }
+  },
+  "delete-todo-item": (id) => {
+    if (typeof id === "number") {
+      return true;
+    } else {
+      console.warn("Invalid, cannot delete todo item");
       return false;
     }
   },
@@ -132,30 +143,36 @@ const toggleTodoInputField = () => {
   if (toShowTodoInput) resetTodoInputValues();
 };
 
-const updateTitle = (key) => {
-  if (todoData.value) {
-    const list = document
-      .querySelector(".left-section")
-      .querySelector(`[data-key="${key}"]`);
-    list.contentEditable = "true";
-    contentEditable.value = true;
-    list.focus();
-    list.addEventListener("keyup", function () {
-      if (list.textContent.length >= 15) {
-        contentEditable.value = false;
-        list.textContent = list.textContent.slice(0, 14);
-      }
-    });
-    list.addEventListener("focusout", function () {
-      list.contentEditable = "false";
-      contentEditable.value = false;
-      todoData.value[key]["title"] = list.textContent;
-    });
+const restrictTodoTitleLength = (list) => {
+  if (list.textContent.length >= 15) {
+    contentEditable.value = false;
+    list.textContent = list.textContent.slice(0, 14);
   }
 };
 
-const deleteList = (id) => {
-  todoData.value.splice(id, 1);
+const saveTodoTitle = (list, key) => {
+  list.contentEditable = "false";
+  contentEditable.value = false;
+  todoData.value[key]["title"] = list.textContent;
+};
+
+const updateTodoItemTitle = (key) => {
+  if (todoListItems.value) {
+    activeEditableTodo.value = todoListItems.value.listTitle[key];
+    activeEditableTodo.value.contentEditable = "true";
+    contentEditable.value = true;
+    activeEditableTodo.value.focus();
+    activeEditableTodo.value.addEventListener("keyup", () =>
+      restrictTodoTitleLength(activeEditableTodo.value)
+    );
+    activeEditableTodo.value.addEventListener("focusout", () =>
+      saveTodoTitle(activeEditableTodo.value, key)
+    );
+  }
+};
+
+const deleteTodoItem = (id) => {
+  emit("delete-todo-item", id);
 };
 
 const onSelectGroupEmoji = (emoji) => {
@@ -225,6 +242,16 @@ const getnewTodoItem = () => {
     }
   }
 };
+
+onUnmounted(() => {
+  if (activeEditableTodo.value) {
+    activeEditableTodo.value.removeEventListener(
+      "keyup",
+      restrictTodoTitleLength
+    );
+    activeEditableTodo.value.removeEventListener("focusout", saveTodoTitle);
+  }
+});
 </script>
 
 <style scoped>

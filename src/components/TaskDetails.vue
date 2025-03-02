@@ -97,7 +97,7 @@ let currentNotes = ref(""); // stores updated task notes
 let currentCompletionStatus = ref(false); // stores updated task status
 let initalTaskData = ref({}); // stores initial task data
 let allData = defineModel("all-task-data");
-const emit = defineEmits(["close-modal"]);
+const emit = defineEmits(["close-task-details"]);
 
 const getActiveTaskItemData = (taskItemtId) => {
   activeTaskItemId.value = taskItemtId;
