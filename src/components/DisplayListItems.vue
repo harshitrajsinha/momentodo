@@ -54,8 +54,7 @@
 </template>
 
 <script setup>
-import { ref, defineExpose } from "vue";
-const childListComponent = ref(null);
+import { ref } from "vue";
 let optionsElem = ref({});
 let optionContainerActive = ref(false);
 const optionsContainerElem = ref(null);
@@ -92,7 +91,6 @@ const { listStyles, listContainerStyle } = defineProps({
   listStyles: String,
   listContainerStyle: String,
 });
-defineExpose({ childListComponent });
 
 const handleListClick = (index, event) => {
   emit("get-list-id", index, event);
